@@ -51,7 +51,9 @@ This section is the brain of the platform. When a security analyst selects a fla
 
 
 Workflow:
-<img width="532" height="846" alt="image" src="https://github.com/user-attachments/assets/f301a9d1-e604-4ef4-9030-f790774a8920" />
+<img width="3514" height="2766" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/d7d8e02b-0f56-45e6-a964-c92f36579aae" />
+
+
 ## 1. Data Ingestion (Backend)
 
 The dashboard starts by reading your raw cybersecurity log data (stored in a CSV file).
