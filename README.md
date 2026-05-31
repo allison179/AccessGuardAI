@@ -48,3 +48,66 @@ This section is the brain of the platform. When a security analyst selects a fla
 <img width="2085" height="888" alt="image" src="https://github.com/user-attachments/assets/59f709cc-79ec-476a-a04f-e6824d5d2eb2" />
 <img width="2059" height="1043" alt="image" src="https://github.com/user-attachments/assets/7d11f0ed-4615-4210-9115-798e6e3a3c90" />
 <img width="2081" height="925" alt="image" src="https://github.com/user-attachments/assets/df728cde-d41d-443d-b9f0-8f1fda90ea98" />
+
+
+Workflow:
++--------------------------------------------+
+               |  1. DATA INGESTION & STATE MANAGEMENT      |
+               |     - Reads telemetry logs from CSV file    |
+               |     - Loads data into a Pandas DataFrame   |
+               |     - Caches data in memory for speed      |
+               +----------------------+---------------------+
+                                      |
+                                      v
+               +--------------------------------------------+
+               |  2. COMPLIANCE MAPPING (LOGIC LAYER)       |
+               |     - Evaluates data using If/Else logic   |
+               |     - Maps metrics to GDPR, SOC 2, & ISO   |
+               |     - Appends legal metadata to rows       |
+               +----------------------+---------------------+
+                                      |
+                                      v
+               +--------------------------------------------+
+               |  3. UI RENDERING (STREAMLIT FRONTEND)      |
+               |     - Renders interactive Plotly charts    |
+               |     - Displays master risk registry table  |
+               |     - Color-codes risky rows dynamically   |
+               +----------------------+---------------------+
+                                      |
+                       (User selects a risky row)
+                                      |
+                                      v
+               +--------------------------------------------+
+               |  4. AI AGENT AUDITING (LLM LAYER)          |
+               |     - Converts row into a JSON payload     |
+               |     - Sends API call via google-genai SDK  |
+               |     - Gemini 2.5 Flash processes payload   |
+               |     - Outputs Markdown Incident Playbook   |
+               +--------------------------------------------+
+Here is the end-to-end workflow of **AccessGuard AI**, explained simply using standard tech terms.
+
+---
+
+## 1. Data Ingestion (Backend)
+
+The dashboard starts by reading your raw cybersecurity log data (stored in a CSV file).
+
+* **The Tech:** It loads this data into a **Pandas DataFrame** (an in-memory data table). To keep the app fast, it uses **caching**, meaning it loads the file into memory once rather than reading it from the hard drive every time you click a button.
+
+## 2. Compliance Mapping (Logic Layer)
+
+Before showing anything on the screen, the code runs a script to check if any security rules or international laws are being broken.
+
+* **The Tech:** It uses conditional Python statements (**If/Else logic**) to scan the data columns. For example: if `days_inactive > 90`, it appends a text string flagging a **GDPR violation**. This converts raw numbers into clear legal compliance metadata.
+
+## 3. UI Rendering (Frontend)
+
+The app displays your data using interactive graphs and a clean master list of users.
+
+* **The Tech:** The interface is built with **Streamlit** (a Python frontend framework). The pie charts and scatter plots are generated via **Plotly**, which sends interactive charts directly to your web browser. The master list uses **conditional formatting** to automatically style dangerous user rows in red based on their calculated risk scores.
+
+## 4. AI Agent Auditing (LLM Layer)
+
+When a security analyst clicks on a risky user, the app calls Google Gemini to write an emergency response guide.
+
+* **The Tech:** The app converts that specific user's data row into a **JSON payload** (a standardized text format) and sends it over an **API** via the **`google-genai` SDK** to the **`gemini-2.5-flash`** model. With a low **temperature setting** (which prevents the AI from guessing or making things up), the model reads the JSON data and outputs a highly accurate, step-by-step containment playbook in **Markdown** text format.
