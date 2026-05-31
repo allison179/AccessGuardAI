@@ -1,0 +1,5 @@
+user_id,username,failed_logins,days_inactive,brute_force_trigger,impossible_travel,is_privileged_user,risk_score,risk_tier
+U001,Allison,1,12,False,False,False,5,Low
+U002,John,11,120,True,False,True,100,Critical
+U003,David,14,5,True,True,True,80,Critical
+U004,Sarah,0,2,False,False,False,0,Low
