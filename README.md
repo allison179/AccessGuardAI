@@ -25,3 +25,4 @@ Agentic IAM Security Analytics and Compliance Platform built using Python, Strea
 
 Dashboard(1)<img width="2121" height="1103" alt="image" src="https://github.com/user-attachments/assets/bc6cff0d-15e7-42e5-9399-fe10a7f7c266" />
 Dashboard(2)<img width="2064" height="793" alt="image" src="https://github.com/user-attachments/assets/ce0b5d77-8720-4b10-98d8-0db812920cda" />
+Identity and Compliance risk registry<img width="2046" height="383" alt="image" src="https://github.com/user-attachments/assets/7b7c4b22-cc50-4299-b2e8-32fdfa3d826c" />
