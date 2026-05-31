@@ -1,0 +1,13 @@
+user_id,permission
+U001,Create VM
+U001,Delete VM
+U001,Modify IAM
+U001,Manage Storage
+U001,Access Billing
+
+U002,Deploy Application
+U002,View Logs
+
+U008,Manage Users
+U008,Manage Servers
+U008,Access Backups

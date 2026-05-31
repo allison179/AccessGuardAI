@@ -1,0 +1,68 @@
+role,permission
+Cloud Admin,Create VM
+Cloud Admin,Delete VM
+Cloud Admin,Modify IAM
+Cloud Admin,Manage Storage
+Cloud Admin,View Logs
+Cloud Admin,Create Service Account
+Cloud Admin,Manage Networks
+Cloud Admin,Access Billing
+
+System Admin,Manage Servers
+System Admin,Manage Users
+System Admin,View Logs
+System Admin,Restart Services
+System Admin,Install Software
+System Admin,Modify Configurations
+System Admin,Access Backups
+
+Security Analyst,View Logs
+Security Analyst,Investigate Alerts
+Security Analyst,Run Security Scans
+Security Analyst,View IAM Policies
+Security Analyst,Generate Reports
+
+Developer,Deploy Application
+Developer,View Logs
+Developer,Access Repository
+Developer,Manage Containers
+
+DevOps Engineer,Deploy Infrastructure
+DevOps Engineer,Manage CI/CD
+DevOps Engineer,View Logs
+DevOps Engineer,Manage Containers
+DevOps Engineer,Monitor Systems
+DevOps Engineer,Manage Secrets
+
+Database Administrator,Create Database
+Database Administrator,Modify Database
+Database Administrator,Backup Database
+Database Administrator,Restore Database
+Database Administrator,View Logs
+Database Administrator,Manage Database Users
+
+Network Engineer,Configure Firewall
+Network Engineer,Monitor Network
+Network Engineer,Manage VPN
+Network Engineer,View Logs
+Network Engineer,Troubleshoot Connectivity
+
+Analyst,View Reports
+Analyst,Export Reports
+
+HR Manager,Manage Employee Records
+HR Manager,Approve Leave
+HR Manager,View Reports
+
+Sales Executive,View CRM
+Sales Executive,Update Leads
+
+Finance Manager,Approve Expenses
+Finance Manager,View Financial Reports
+Finance Manager,Export Financial Data
+Finance Manager,Manage Budgets
+
+Support Engineer,Resolve Tickets
+Support Engineer,View Logs
+Support Engineer,Manage Knowledge Base
+Support Engineer,Reset Passwords

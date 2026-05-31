@@ -1,0 +1,13 @@
+role,risk_level,max_expected_permissions
+Cloud Admin,High,8
+System Admin,High,7
+Security Analyst,Medium,5
+Developer,Medium,4
+DevOps Engineer,High,6
+Database Administrator,High,6
+Network Engineer,Medium,5
+Analyst,Low,2
+HR Manager,Medium,3
+Sales Executive,Low,2
+Finance Manager,Medium,4
+Support Engineer,Medium,4

@@ -1,0 +1,51 @@
+user_id,name,department,role,last_login
+U001,Allison,IT,Cloud Admin,2026-05-28
+U002,John,Engineering,Developer,2026-01-15
+U003,Mary,Finance,Analyst,2026-05-30
+U004,David,HR,HR Manager,2025-11-01
+U005,Sarah,IT,Security Analyst,2026-05-25
+U006,Kevin,Engineering,Developer,2026-04-20
+U007,Emma,Finance,Analyst,2025-12-10
+U008,James,IT,System Admin,2026-05-29
+U009,Olivia,Sales,Sales Executive,2026-05-27
+U010,Daniel,Engineering,Developer,2026-05-26
+U011,Sophia,Finance,Analyst,2026-05-21
+U012,Michael,Engineering,Developer,2026-02-15
+U013,William,IT,System Admin,2026-05-20
+U014,Ava,Sales,Sales Executive,2026-05-24
+U015,Ethan,HR,HR Manager,2025-10-15
+U016,Isabella,IT,Security Analyst,2026-05-18
+U017,Lucas,Engineering,Developer,2026-05-17
+U018,Mia,Finance,Analyst,2026-04-05
+U019,Benjamin,IT,Cloud Admin,2026-05-29
+U020,Charlotte,Sales,Sales Executive,2026-05-22
+U021,Alexander,Engineering,Developer,2025-12-20
+U022,Amelia,Finance,Analyst,2026-05-16
+U023,Henry,IT,System Admin,2026-05-28
+U024,Evelyn,HR,HR Manager,2026-01-10
+U025,Jacob,Engineering,Developer,2026-05-12
+U026,Harper,Finance,Analyst,2026-05-14
+U027,Logan,IT,Security Analyst,2026-05-11
+U028,Ella,Sales,Sales Executive,2026-05-09
+U029,Mason,Engineering,Developer,2025-11-15
+U030,Scarlett,Finance,Analyst,2026-05-08
+U031,Elijah,IT,Cloud Admin,2026-05-30
+U032,Grace,HR,HR Manager,2026-04-01
+U033,Aiden,Engineering,Developer,2026-05-05
+U034,Chloe,Finance,Analyst,2026-05-07
+U035,Sebastian,IT,System Admin,2026-05-06
+U036,Lily,Sales,Sales Executive,2026-05-04
+U037,Matthew,Engineering,Developer,2026-03-15
+U038,Zoe,Finance,Analyst,2026-05-03
+U039,Jackson,IT,Security Analyst,2026-05-02
+U040,Hannah,Sales,Sales Executive,2026-05-01
+U041,Samuel,Engineering,Developer,2025-12-05
+U042,Nora,Finance,Analyst,2026-04-18
+U043,Joseph,IT,System Admin,2026-05-23
+U044,Victoria,HR,HR Manager,2025-09-01
+U045,Carter,Engineering,Developer,2026-05-19
+U046,Aria,Finance,Analyst,2026-05-15
+U047,Owen,IT,Cloud Admin,2026-05-27
+U048,Penelope,Sales,Sales Executive,2026-05-13
+U049,Wyatt,Engineering,Developer,2026-05-10
+U050,Riley,IT,Security Analyst,2026-05-29
