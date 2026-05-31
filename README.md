@@ -51,43 +51,7 @@ This section is the brain of the platform. When a security analyst selects a fla
 
 
 Workflow:
-+--------------------------------------------+
-               |  1. DATA INGESTION & STATE MANAGEMENT      |
-               |     - Reads telemetry logs from CSV file    |
-               |     - Loads data into a Pandas DataFrame   |
-               |     - Caches data in memory for speed      |
-               +----------------------+---------------------+
-                                      |
-                                      v
-               +--------------------------------------------+
-               |  2. COMPLIANCE MAPPING (LOGIC LAYER)       |
-               |     - Evaluates data using If/Else logic   |
-               |     - Maps metrics to GDPR, SOC 2, & ISO   |
-               |     - Appends legal metadata to rows       |
-               +----------------------+---------------------+
-                                      |
-                                      v
-               +--------------------------------------------+
-               |  3. UI RENDERING (STREAMLIT FRONTEND)      |
-               |     - Renders interactive Plotly charts    |
-               |     - Displays master risk registry table  |
-               |     - Color-codes risky rows dynamically   |
-               +----------------------+---------------------+
-                                      |
-                       (User selects a risky row)
-                                      |
-                                      v
-               +--------------------------------------------+
-               |  4. AI AGENT AUDITING (LLM LAYER)          |
-               |     - Converts row into a JSON payload     |
-               |     - Sends API call via google-genai SDK  |
-               |     - Gemini 2.5 Flash processes payload   |
-               |     - Outputs Markdown Incident Playbook   |
-               +--------------------------------------------+
-Here is the end-to-end workflow of **AccessGuard AI**, explained simply using standard tech terms.
-
----
-
+<img width="532" height="846" alt="image" src="https://github.com/user-attachments/assets/f301a9d1-e604-4ef4-9030-f790774a8920" />
 ## 1. Data Ingestion (Backend)
 
 The dashboard starts by reading your raw cybersecurity log data (stored in a CSV file).
