@@ -1,10 +1,14 @@
 import os
+
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import google  # Modern 2026 SDK
+from google import genai  # Clean, modern SDK syntax
+from dotenv import load_dotenv
 
 # Initialize environment variables from .env
+load_dotenv()
 
 # Set page layout to wide
 st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
@@ -188,7 +192,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.stop()
 
             # Initialize modern 2026 client
-            client = google.genai.Client(api_key=api_key)
+            client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash", contents=prompt
