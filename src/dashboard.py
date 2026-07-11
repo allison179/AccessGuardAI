@@ -109,7 +109,6 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     st.session_state.last_user = selected_user
 
     with st.spinner(f"Querying live Gemini AI models for {selected_user}..."):
-        # Setup real AI generation instructions
         prompt = f"""
         You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
         Write a massive, thorough corporate threat report for user: {user_data['username']}.
@@ -124,18 +123,23 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         1. Executive Threat Summary & Corporate Blast Radius
         2. Regulatory Non-Compliance Analysis (ISO 27001, SOC 2, and GDPR deviations)
         3. Containment Incident Response Playbook Actions
-        Make it clean and highly technical. Do not mention system fallbacks.
+        Make it clean and highly technical.
         """
         
         try:
-            api_key = os.getenv("GEMINI_API_KEY")
+            # 🔑 Dynamically fetch the key right out of Streamlit Secrets
+            api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
+            
+            if not api_key:
+                raise ValueError("GEMINI_API_KEY not found in .streamlit/secrets.toml")
+
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
             
             ai_text = response.text
             st.session_state.cached_markdown = ai_text
             
-            # Formulate the download page document layout structure
+            # Create the styled printable print layout document structure
             st.session_state.cached_html = f"""
             <html><body style="font-family:Arial;padding:30px;line-height:1.6;color:#333;">
             <h2>🛡️ AccessGuard AI Official Export Artifact</h2>
@@ -144,7 +148,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             </body></html>
             """
         except Exception as e:
-            st.error(f"AI API Connection failed: {str(e)}. Please check your GEMINI_API_KEY inside your .env file.")
+            st.error(f"AI Connection failed: {str(e)}. Please verify your secret variable syntax inside .streamlit/secrets.toml.")
 
 if st.session_state.cached_markdown:
     st.markdown("### 📄 AI-Generated Legal & Security Intelligence Report")
