@@ -109,38 +109,27 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     st.session_state.last_user = selected_user
 
     with st.spinner(f"Requesting data models for {selected_user}..."):
-        prompt = f"""
-        You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
-        Generate an official Corporate Security and Threat Assessment Report for profile: "{user_data['username']}".
+        # [... keep your prompt string exactly here ...]
         
-        Format beautifully using standard markdown syntax features. Review these precise identity parameters:
-        - Target Identity Context: Username: {user_data['username']}, Identifier: {user_data['user_id']}
-        - Telemetry Ingestion Metrics: Risk Assessment Index: {user_data['risk_score']}/100, Tier Context: {user_data['risk_tier']}
-        - Authentication Indicators: {user_data['failed_logins']} failed logins logged.
-        - Accounts Lifecycle Vector: Inactivity log spans {user_data['days_inactive']} days without rotation updates.
-        - Administrative Clearance Check: Elevated Admin Status: {user_data['is_privileged_user']}
-        - System Violation Triggers: Mapped Compliance Breaches: {user_data['regulatory_impact']}
-        
-        Provide high-value technical insight organized within sections for:
-        1. EXECUTIVE THREAT SUMMARY (Explicitly state threat profiles and operational impact scopes)
-        2. REGULATORY NON-COMPLIANCE ANALYSIS (Evaluate ISO 27001, SOC 2, and GDPR control failures)
-        3. CONTAINER PLAYBOOK REMEDIATION ACTIONS (Detail step-by-step incident response playbook processes)
-        """
-        
-        # Pull key values out of the secrets runtime paths
+        # 🔑 Look directly inside Streamlit Secrets
         api_key = None
         try:
-            api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
+            if "GEMINI_API_KEY" in st.secrets:
+                api_key = st.secrets["GEMINI_API_KEY"]
+            elif "general" in st.secrets and "GEMINI_API_KEY" in st.secrets["general"]:
+                api_key = st.secrets["general"]["GEMINI_API_KEY"]
         except Exception:
             pass
         
+        # Fallback to standard environment variable
         if not api_key:
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Resolution Missing: Confirm that `GEMINI_API_KEY` is saved within your `.streamlit/secrets.toml` parameters configuration.")
+            st.error("❌ Key Resolution Missing: Confirm that `GEMINI_API_KEY` is saved within your `.streamlit/secrets.toml` file.")
         else:
             try:
+                # Pass the api_key explicitly to the client!
                 client = genai.Client(api_key=api_key)
                 response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
                 
@@ -171,24 +160,9 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                     </div>
                     <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
                     {formatted_html_body}
-                    <script>window.onload = function() {{ window.print(); }}</style>
+                    <script>window.onload = function() {{ window.print(); }}</script>
                 </body>
                 </html>
                 """
             except Exception as e:
                 st.error(f"⚠️ Live AI Execution failed: {str(e)}")
-
-# Safe decoupled execution loop rendering layer block
-if st.session_state.cached_markdown and st.session_state.cached_html:
-    st.markdown("### 📄 Live AI-Generated Audit Output")
-    st.markdown(st.session_state.cached_markdown) 
-    
-    st.markdown("---")
-    st.markdown("### 💾 Export Compliance Artifacts")
-    st.download_button(
-        label=f"📥 Download Official Full Security Audit Report for {st.session_state.last_user} (PDF Layout)",
-        data=st.session_state.cached_html,
-        file_name=f"AccessGuard_Live_Audit_{st.session_state.last_user}.html",
-        mime="text/html",
-        key="live_report_download"
-    )
