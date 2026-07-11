@@ -124,16 +124,16 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # 🔑 FOOLPROOF DIAGNOSTIC & RESOLUTION PIPELINE
+        # 🔑 ULTRA-RESILIENT EXTRACTION ENGINE
         api_key = None
         
-        # 1. Try resolving native secrets structure
+        # 1. Try Streamlit native resolution first
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
         except Exception:
             pass
         
-        # 2. Hard Manual File Read (Regex Matching)
+        # 2. Hard Manual File Extraction (Zero Formatter Dependency)
         if not api_key:
             possible_paths = [
                 os.path.abspath(".streamlit/secrets.toml"),
@@ -145,26 +145,28 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 if os.path.exists(path):
                     try:
                         with open(path, "r") as f:
-                            content = f.read()
-                            # Look for GEMINI_API_KEY regardless of quotes or spacing variations around the equals sign
-                            match = re.search(r'(?:"?GEMINI_API_KEY"?)\s*=\s*["\']([^"\']+)["\']', content)
-                            if match:
-                                api_key = match.group(1).strip()
-                                break
+                            for line in f:
+                                # Look for the target keyword
+                                if "GEMINI_API_KEY" in line and "=" in line:
+                                    # Split line into key and value segments
+                                    _, raw_val = line.split("=", 1)
+                                    # Clean absolutely all formatting anomalies, quotes, and whitespace variations
+                                    api_key = raw_val.replace('"', '').replace("'", "").strip()
+                                    break
                     except Exception:
                         pass
                 if api_key:
                     break
 
-        # 3. Last resort environment check
+        # 3. Last resort environment fallback
         if not api_key:
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Resolution Error: Key file was found, but content matching failed. Verify syntax formats inside your file context.")
+            st.error("❌ Key Extraction Failure: Ensure file line matches `GEMINI_API_KEY = \"AQ...\"` format perfectly.")
         else:
             try:
-                # Direct Native Client Architecture using verified AQ key
+                # Initialize client using modern native structural formats
                 client = genai.Client(api_key=api_key)
                 response = client.models.generate_content(
                     model="gemini-2.5-flash", 
