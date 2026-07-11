@@ -2,8 +2,7 @@ import os
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from dotenv import load_dotenv
-from google import genai  # Modern 2026 SDK
+import google  # Modern 2026 SDK
 
 # Initialize environment variables from .env
 load_dotenv()
@@ -190,7 +189,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.stop()
 
             # Initialize modern 2026 client
-            client = genai.Client(api_key=api_key)
+            client = google.genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash", contents=prompt
