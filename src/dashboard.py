@@ -180,7 +180,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         """
 
         try:
-            # 1. Read key and aggressively strip hidden whitespaces/newlines (\r, \n)
+            # 1. Fetch key and strip hidden whitespace/carriage returns (\r, \n)
             api_key = None
             if "GEMINI_API_KEY" in st.secrets:
                 api_key = st.secrets["GEMINI_API_KEY"]
@@ -194,7 +194,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Initialize client engine
+            # 2. Initialize modern client engine
             client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
@@ -209,9 +209,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             st.error(f"Error communicating with Gemini Engine: {e}")
             st.markdown("#### 📄 AI Threat Report (Simulated Compliance View)")
             st.warning(f"""
-
-                       
-                                   ### 🚨 Executive Summary
+            ### 🚨 Executive Summary
             User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk**.
             
             ### ⚖️ Framework Impacts
