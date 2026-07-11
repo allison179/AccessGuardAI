@@ -180,18 +180,21 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         """
 
         try:
-            # Check Streamlit's native secrets management container directly
+            # 1. Read key and aggressively strip hidden whitespaces/newlines (\r, \n)
             api_key = None
             if "GEMINI_API_KEY" in st.secrets:
                 api_key = st.secrets["GEMINI_API_KEY"]
             else:
                 api_key = os.getenv("GEMINI_API_KEY")
 
-            if not api_key or api_key == "your_actual_free_gemini_key_here":
-                st.error("API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
+            if api_key:
+                api_key = str(api_key).strip().strip('"').strip("'")
+
+            if not api_key or api_key == "your_actual_free_gemini_key_here" or api_key == "":
+                st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # Initialize modern client engine
+            # 2. Initialize client engine
             client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
@@ -211,21 +214,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             
             ### ⚖️ Framework Impacts
             - **Flagged Deficiencies:** {user_data['regulatory_impact']}
-            """)
-        except Exception as e:
-            st.error(f"Error communicating with Gemini Engine: {e}")
-            st.markdown(
-                "#### 📄 AI Threat Report (Simulated Compliance View)"
-            )
-            st.warning(
-                f"""
-            ### 🚨 Executive Summary
-            User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk**.
-            
-            ### ⚖️ Framework Impacts
-            - **Flagged Deficiencies:** {user_data['regulatory_impact']}
             
             ### 🛡️ Fallback Notice
             Please verify your local backend connection parameters to fetch live AI recommendations.
-            """
-            )
+            """)
