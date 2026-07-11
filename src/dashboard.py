@@ -5,17 +5,17 @@ import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 
-# Load environment variables just in case
+# Load workspace configurations cleanly
 load_dotenv()
 
-# Set page layout to wide and configure clean UI styling properties
+# Set page layout configuration settings
 st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
 
 st.title("🛡️ AccessGuard AI — IAM Security & Compliance Analytics")
 st.subheader("Real-time Identity Risk Monitoring & Regulatory Auditing")
 st.markdown("---")
 
-# Dynamic IT Law mapping function helper exactly matching your registry rules
+# Dynamic compliance verification filter rules engine
 def map_compliance_violations(row):
     violations = []
     if row["brute_force_trigger"]:
@@ -28,7 +28,7 @@ def map_compliance_violations(row):
         violations.append("GDPR (Art. 32 - Data Minimization)")
     return ", ".join(violations) if violations else "Compliant ✅"
 
-# Load data cleanly from local database layer
+# Pull data records dynamically from database context layers
 try:
     df = pd.read_csv("data/risk_assessments.csv")
 except Exception:
@@ -47,7 +47,7 @@ except Exception:
 if "regulatory_impact" not in df.columns:
     df["regulatory_impact"] = df.apply(map_compliance_violations, axis=1)
 
-# --- KPI METRICS ROW ---
+# --- METRIC PRESENTATION LAYER ---
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric(label="Total Monitored Users", value=len(df))
@@ -63,7 +63,7 @@ with col4:
 
 st.markdown("---")
 
-# --- CHARTS SECTION ---
+# --- CHARTS PRESENTATION LAYER ---
 left_col, right_col = st.columns(2)
 color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical": "#b62525"}
 
@@ -82,20 +82,20 @@ with right_col:
 
 st.markdown("---")
 
-# --- DETAILED DATA TABLE ---
+# --- RISK REGISTRY DATA MATRIX ---
 st.markdown("### 🔍 Identity & Compliance Risk Registry")
 styled_df = df.style.map(lambda v: "background-color: #bb1212; color: white;" if v == "Critical" else "", subset=["risk_tier"])
 st.dataframe(styled_df, use_container_width=True)
 
 st.markdown("---")
 
-# --- AI SECURITY AGENT SECTION ---
+# --- PERSISTENT STATE RETRIEVAL AGENT LAYOUT ---
 st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent")
 
 user_options = df["username"].tolist()
 selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
 
-# Initialize session states cleanly to prevent dashboard crashes
+# Ensure cached states persist across runtime ticks
 if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
 if "cached_html" not in st.session_state: st.session_state.cached_html = None
 if "last_user" not in st.session_state: st.session_state.last_user = None
@@ -108,26 +108,26 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
     st.session_state.last_user = selected_user
 
-    with st.spinner(f"Querying live Gemini AI models for {selected_user}..."):
+    with st.spinner(f"Requesting data models for {selected_user}..."):
         prompt = f"""
         You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
-        Generate an official Cybersecurity Incident Report for user profile: "{user_data['username']}".
+        Generate an official Corporate Security and Threat Assessment Report for profile: "{user_data['username']}".
         
-        Use strict Markdown styling (#, ##, **, list bullets). Focus the assessment around these parameters:
-        - Target Identity Details: Username: {user_data['username']}, ID: {user_data['user_id']}
-        - System Risk Telemetry Matrix: Score {user_data['risk_score']}/100, Tier: {user_data['risk_tier']}
-        - Authentication Discrepancies: {user_data['failed_logins']} failed logins logged.
-        - Dormancy Status Spikes: {user_data['days_inactive']} days inactive without credential updates.
-        - Privileged Access Admin Status: {user_data['is_privileged_user']}
-        - Active Compliance Infractions Flagged: {user_data['regulatory_impact']}
+        Format beautifully using standard markdown syntax features. Review these precise identity parameters:
+        - Target Identity Context: Username: {user_data['username']}, Identifier: {user_data['user_id']}
+        - Telemetry Ingestion Metrics: Risk Assessment Index: {user_data['risk_score']}/100, Tier Context: {user_data['risk_tier']}
+        - Authentication Indicators: {user_data['failed_logins']} failed logins logged.
+        - Accounts Lifecycle Vector: Inactivity log spans {user_data['days_inactive']} days without rotation updates.
+        - Administrative Clearance Check: Elevated Admin Status: {user_data['is_privileged_user']}
+        - System Violation Triggers: Mapped Compliance Breaches: {user_data['regulatory_impact']}
         
-        Structure your generation with headers for:
-        1. EXECUTIVE THREAT SUMMARY (Detail the corporate blast radius)
-        2. REGULATORY NON-COMPLIANCE ANALYSIS (Breakdown ISO 27001, SOC 2, and GDPR violations clearly)
-        3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
+        Provide high-value technical insight organized within sections for:
+        1. EXECUTIVE THREAT SUMMARY (Explicitly state threat profiles and operational impact scopes)
+        2. REGULATORY NON-COMPLIANCE ANALYSIS (Evaluate ISO 27001, SOC 2, and GDPR control failures)
+        3. CONTAINER PLAYBOOK REMEDIATION ACTIONS (Detail step-by-step incident response playbook processes)
         """
         
-        # 🔑 Failsafe Key Finder: Check Secrets first, then check regular environment variables
+        # Pull key values out of the secrets runtime paths
         api_key = None
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
@@ -138,7 +138,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ API KEY NOT FOUND: Please ensure `GEMINI_API_KEY` is added to your `.env` file or `.streamlit/secrets.toml` correctly.")
+            st.error("❌ Key Resolution Missing: Confirm that `GEMINI_API_KEY` is saved within your `.streamlit/secrets.toml` parameters configuration.")
         else:
             try:
                 client = genai.Client(api_key=api_key)
@@ -147,7 +147,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 ai_text = response.text
                 st.session_state.cached_markdown = ai_text
                 
-                # Conversion helper to turn markdown markers into printable HTML elements
+                # Turn Markdown patterns into corporate-grade styled layouts for PDF generation
                 formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
                 formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
                 
@@ -178,7 +178,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             except Exception as e:
                 st.error(f"⚠️ Live AI Execution failed: {str(e)}")
 
-# Safe out-of-loop execution rendering pattern (Prevents crashes if variable is empty)
+# Safe decoupled execution loop rendering layer block
 if st.session_state.cached_markdown and st.session_state.cached_html:
     st.markdown("### 📄 Live AI-Generated Audit Output")
     st.markdown(st.session_state.cached_markdown) 
