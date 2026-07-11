@@ -125,6 +125,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         """
         
         # 🔑 ULTRA-RESILIENT EXTRACTION ENGINE
+        # 🔑 PERFECT EXTRACTION ENGINE
         api_key = None
         
         # 1. Try Streamlit native resolution first
@@ -140,6 +141,27 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 os.path.abspath("../.streamlit/secrets.toml"),
                 os.path.abspath("secrets.toml")
             ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r") as f:
+                            for line in f:
+                                # Look for the keyword inside the line, ignoring quotes on the key side
+                                if "GEMINI_API_KEY" in line.replace('"', '').replace("'", "") and "=" in line:
+                                    # Split line into key and value segments safely at the first equals sign
+                                    _, raw_val = line.split("=", 1)
+                                    # Strip absolutely all quotes, newlines, and trailing spaces from the key value
+                                    api_key = raw_val.replace('"', '').replace("'", "").strip()
+                                    break
+                    except Exception:
+                        pass
+                if api_key:
+                    break
+
+        # 3. Last resort environment fallback
+        if not api_key:
+            api_key = os.getenv("GEMINI_API_KEY")
             
             for path in possible_paths:
                 if os.path.exists(path):
