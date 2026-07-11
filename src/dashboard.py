@@ -101,7 +101,7 @@ with left_col:
         color_discrete_map=color_map,
         hole=0.4,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with right_col:
     st.markdown("### 📈 User Risk Scores vs. Failed Logins")
@@ -118,7 +118,7 @@ with right_col:
             "risk_score": "Calculated Risk Score",
         },
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
 st.markdown("---")
 
@@ -136,7 +136,7 @@ def highlight_critical(val):
 
 
 styled_df = df.style.map(highlight_critical, subset=["risk_tier"])
-st.dataframe(styled_df, use_container_width=True)
+st.dataframe(styled_df, width="stretch")
 
 st.markdown("---")
 
