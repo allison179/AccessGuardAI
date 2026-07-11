@@ -209,7 +209,9 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             st.error(f"Error communicating with Gemini Engine: {e}")
             st.markdown("#### 📄 AI Threat Report (Simulated Compliance View)")
             st.warning(f"""
-            ### 🚨 Executive Summary
+
+                       
+                                   ### 🚨 Executive Summary
             User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk**.
             
             ### ⚖️ Framework Impacts
