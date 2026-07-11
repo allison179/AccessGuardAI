@@ -95,7 +95,7 @@ st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent"
 user_options = df["username"].tolist()
 selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
 
-# Persist data across clicks
+# Initialize session states for caching data across screen interactions
 if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
 if "cached_html" not in st.session_state: st.session_state.cached_html = None
 if "last_user" not in st.session_state: st.session_state.last_user = None
@@ -111,27 +111,28 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     with st.spinner(f"Querying live Gemini AI models for {selected_user}..."):
         prompt = f"""
         You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
-        Write a massive, thorough corporate threat report for user: {user_data['username']}.
-        Metrics context to inject:
-        - Risk Score: {user_data['risk_score']}/100 ({user_data['risk_tier']} tier)
-        - Failed Logins: {user_data['failed_logins']}
-        - Days Inactive: {user_data['days_inactive']}
-        - Privileged Account Status: {user_data['is_privileged_user']}
-        - Compliance Mappings Triggered: {user_data['regulatory_impact']}
+        Generate an official Cybersecurity Incident Report for user profile: "{user_data['username']}".
         
-        Provide a highly professional summary layout including sections for:
-        1. Executive Threat Summary & Corporate Blast Radius
-        2. Regulatory Non-Compliance Analysis (ISO 27001, SOC 2, and GDPR deviations)
-        3. Containment Incident Response Playbook Actions
-        Make it clean and highly technical.
+        Use strict Markdown styling (#, ##, **, list bullets). Focus the assessment around these parameters:
+        - Target Identity Details: Username: {user_data['username']}, ID: {user_data['user_id']}
+        - System Risk Telemetry Matrix: Score {user_data['risk_score']}/100, Tier: {user_data['risk_tier']}
+        - Authentication Discrepancies: {user_data['failed_logins']} failed logins logged.
+        - Dormancy Status Spikes: {user_data['days_inactive']} days inactive without credential updates.
+        - Privileged Access Admin Status: {user_data['is_privileged_user']}
+        - Active Compliance Infractions Flagged: {user_data['regulatory_impact']}
+        
+        Structure your generation with headers for:
+        1. EXECUTIVE THREAT SUMMARY (Detail the corporate blast radius)
+        2. REGULATORY NON-COMPLIANCE ANALYSIS (Breakdown ISO 27001, SOC 2, and GDPR violations clearly)
+        3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
         try:
-            # 🔑 Dynamically fetch the key right out of Streamlit Secrets
+            # Safely request keys out of Streamlit Secrets configuration mappings
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
             
             if not api_key:
-                raise ValueError("GEMINI_API_KEY not found in .streamlit/secrets.toml")
+                raise ValueError("GEMINI_API_KEY missing from .streamlit/secrets.toml config pipeline.")
 
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
@@ -139,23 +140,46 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             ai_text = response.text
             st.session_state.cached_markdown = ai_text
             
-            # Create the styled printable print layout document structure
+            # Simple conversion helper to turn markdown formatting elements into clear print-ready HTML elements
+            formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
+            formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
+            
             st.session_state.cached_html = f"""
-            <html><body style="font-family:Arial;padding:30px;line-height:1.6;color:#333;">
-            <h2>🛡️ AccessGuard AI Official Export Artifact</h2>
-            <hr/><pre style="white-space:pre-wrap;font-family:Arial;">{ai_text}</pre>
-            <script>window.onload = function() {{ window.print(); }}</script>
-            </body></html>
+            <html>
+            <head>
+                <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
+                <style>
+                    body {{ font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #222; line-height: 1.6; max-width: 900px; margin: auto; }}
+                    h1 {{ color: #002244; border-bottom: 2px solid #003366; padding-bottom: 8px; font-size: 24px; }}
+                    h2 {{ color: #004488; font-size: 18px; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }}
+                    h3 {{ color: #333; font-size: 15px; margin-top: 15px; }}
+                    br {{ margin-bottom: 4px; }}
+                </style>
+            </head>
+            <body>
+                <div style="text-align:center; margin-bottom: 30px;">
+                    <span style="font-size: 40px;">🛡️</span>
+                    <h1 style="border:none; margin:5px 0 0 0;">AccessGuard AI Enterprise Compliance Document</h1>
+                    <p style="color:#666; font-style:italic; margin:5px 0;">Official Cryptographic Verification Audit Trail</p>
+                </div>
+                <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
+                {formatted_html_body}
+                <script>window.onload = function() {{ window.print(); }}</script>
+            </body>
+            </html>
             """
         except Exception as e:
-            st.error(f"AI Connection failed: {str(e)}. Please verify your secret variable syntax inside .streamlit/secrets.toml.")
+            st.error(f"Live AI Execution failed: {str(e)}")
 
+# Safe out-of-loop execution rendering pattern
 if st.session_state.cached_markdown:
-    st.markdown("### 📄 AI-Generated Legal & Security Intelligence Report")
-    st.info(st.session_state.cached_markdown)
+    st.markdown("### 📄 Live AI-Generated Audit Output")
+    st.markdown(st.session_state.cached_markdown) # Renders cleanly in the app UI as rich markdown text
     
+    st.markdown("---")
+    st.markdown("### 💾 Export Compliance Artifacts")
     st.download_button(
-        label="📥 Download Official Full Security Audit Report (PDF Layout)",
+        label=f"📥 Download Official Full Security Audit Report for {st.session_state.last_user} (PDF Layout)",
         data=st.session_state.cached_html,
         file_name=f"AccessGuard_Live_Audit_{st.session_state.last_user}.html",
         mime="text/html",
