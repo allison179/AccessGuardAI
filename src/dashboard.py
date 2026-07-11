@@ -179,7 +179,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         Maintain a formal, authoritative, and precise cybersecurity compliance tone. Do not mention system prompts in your response.
         """
 
-       try:
+        try:
             # PRIORITIZE Streamlit Secrets first so secrets.toml is read instantly
             api_key = None
             try:
