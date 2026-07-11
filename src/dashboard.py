@@ -1,6 +1,4 @@
 import os
-
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -101,7 +99,7 @@ with left_col:
         color_discrete_map=color_map,
         hole=0.4,
     )
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 with right_col:
     st.markdown("### 📈 User Risk Scores vs. Failed Logins")
@@ -118,7 +116,7 @@ with right_col:
             "risk_score": "Calculated Risk Score",
         },
     )
-    st.plotly_chart(fig2, width="stretch")
+    st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
 
@@ -136,7 +134,7 @@ def highlight_critical(val):
 
 
 styled_df = df.style.map(highlight_critical, subset=["risk_tier"])
-st.dataframe(styled_df, width="stretch")
+st.dataframe(styled_df, use_container_width=True)
 
 st.markdown("---")
 
@@ -194,17 +192,20 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Force the modern SDK to route via Google Cloud Vertex AI infrastructure
-            import os
+            # 2. Force modern SDK mapping directly into the Vertex AI cluster route
             os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
             os.environ["GOOGLE_API_KEY"] = api_key
             
-            # Initialize client matching your corporate project parameters
-            client = genai.Client()
+            # Explicitly pass project configurations so the enterprise key validates
+            client = genai.Client(
+                vertexai=True,
+                project=os.getenv("GCP_PROJECT", "accessguard-security"),
+                location=os.getenv("GCP_LOCATION", "us-central1")
+            )
 
-            # Execute via the enterprise model path
+            # Execute using the active Vertex AI engine model path
             response = client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
+                model="gemini-1.5-flash", contents=prompt
             )
 
             st.success("Audit Complete!")
@@ -216,8 +217,13 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             st.markdown("#### 📄 AI Threat Report (Simulated Compliance View)")
             st.warning(f"""
             ### 🚨 Executive Summary
-            User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk**.
+            User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk** with an exploitation probability matrix score of **{user_data['risk_score']}/100**.
             
-            ### ⚖️ Framework Impacts
-            - **Flagged Deficiencies:** {user_data['regulatory_impact']}
+            ### ⚖️ Regulatory & Framework Impacts
+            * **Identified Deficiencies:** {user_data['regulatory_impact']}
+            * **Non-Compliance Vectors:** SOC 2 Type II (CC6.1), ISO 27001:2022 (A.9.4.2), and NIST SP 800-53.
+            
+            ### 🛡️ Prescribed Containment Runbook
+            1. **Enforce Step-Up Authentication:** Terminate active identity sessions and force hardware token verification.
+            2. **IAM Policy Restructuring:** Demote active cloud workspace admin assignment privileges.
             """)
