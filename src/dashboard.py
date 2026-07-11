@@ -192,18 +192,16 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Force modern SDK mapping directly into the Vertex AI cluster route
+            # # 2. Map Streamlit secrets precisely to the standard Google Cloud env variable names
             os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
             os.environ["GOOGLE_API_KEY"] = api_key
+            os.environ["GOOGLE_CLOUD_PROJECT"] = st.secrets.get("GCP_PROJECT", "gen-lang-client-0257371634")
+            os.environ["GOOGLE_CLOUD_LOCATION"] = st.secrets.get("GCP_LOCATION", "us-central1")
             
-            # Explicitly pass project configurations so the enterprise key validates
-            client = genai.Client(
-                vertexai=True,
-                project=os.getenv("GCP_PROJECT", "accessguard-security"),
-                location=os.getenv("GCP_LOCATION", "us-central1")
-            )
+            # Initialize without arguments so it pulls the variables straight out of the environment mappings
+            client = genai.Client()
 
-            # Execute using the active Vertex AI engine model path
+            # Execute via the enterprise baseline model path
             response = client.models.generate_content(
                 model="gemini-1.5-flash", contents=prompt
             )
