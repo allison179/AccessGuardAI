@@ -122,13 +122,14 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # Pull key safely from secrets or env
+        # 🔑 ADVANCED RESOLUTION PIPELINE: Robust variable parsing
         api_key = None
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
         except Exception:
             pass
         
+        # Smart line token cleaner
         if not api_key:
             target_paths = [".streamlit/secrets.toml", "secrets.toml"]
             for path in target_paths:
@@ -137,7 +138,12 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                         with open(path, "r") as f:
                             for line in f:
                                 if "GEMINI_API_KEY" in line and "=" in line:
-                                    api_key = line.split("=")[1].replace('"', '').replace("'", "").strip()
+                                    # Split at the assignment operator
+                                    parts = line.split("=", 1)
+                                    # Clean up the key string value value 
+                                    raw_value = parts[1].strip()
+                                    # Clean up quotation wrappers cleanly
+                                    api_key = raw_value.strip('"').strip("'")
                                     break
                     except Exception:
                         pass
@@ -146,7 +152,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Missing: Wrap the key name in quotes inside `.streamlit/secrets.toml` e.g., `\"GEMINI_API_KEY\" = \"AQ...\"`")
+            st.error("❌ Key Resolution Error: Could not parse key from `.streamlit/secrets.toml`. Verify it is saved as: `\"GEMINI_API_KEY\" = \"AQ...\"`")
         else:
             try:
                 # Direct Native Client Architecture
