@@ -5,7 +5,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 
-# Load standard runtime parameters
+# Load workspace properties
 load_dotenv()
 
 st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
@@ -44,7 +44,7 @@ except Exception:
 if "regulatory_impact" not in df.columns:
     df["regulatory_impact"] = df.apply(map_compliance_violations, axis=1)
 
-# --- METRIC VISUALIZATION ROW ---
+# --- METRIC GRID ---
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric(label="Total Monitored Users", value=len(df))
@@ -60,7 +60,7 @@ with col4:
 
 st.markdown("---")
 
-# --- VISUAL GRAPH ELEMENTS ---
+# --- VISUAL CHARTS ---
 left_col, right_col = st.columns(2)
 color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical": "#b62525"}
 
@@ -85,13 +85,12 @@ st.dataframe(styled_df, use_container_width=True)
 
 st.markdown("---")
 
-# --- NATIVE AQ. KEY AUTHENTICATED AI CORE ---
+# --- AI THREAT ENGINE ---
 st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent")
 
 user_options = df["username"].tolist()
 selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
 
-# Establish safe session variables to prevent state deletion crashes
 if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
 if "cached_html" not in st.session_state: st.session_state.cached_html = None
 if "last_user" not in st.session_state: st.session_state.last_user = None
@@ -104,7 +103,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
     st.session_state.last_user = selected_user
 
-    with st.spinner(f"Contacting Google Developer API infrastructure for {selected_user}..."):
+    with st.spinner(f"Contacting live Gemini models for {selected_user}..."):
         prompt = f"""
         You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
         Generate an official Cybersecurity Incident Report for user profile: "{user_data['username']}".
@@ -123,7 +122,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # Pull key safely from secrets context pipelines
+        # Pull key safely from secrets or env
         api_key = None
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
@@ -131,13 +130,26 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             pass
         
         if not api_key:
+            target_paths = [".streamlit/secrets.toml", "secrets.toml"]
+            for path in target_paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r") as f:
+                            for line in f:
+                                if "GEMINI_API_KEY" in line and "=" in line:
+                                    api_key = line.split("=")[1].replace('"', '').replace("'", "").strip()
+                                    break
+                    except Exception:
+                        pass
+        
+        if not api_key:
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Missing: Add your `AQ.` token string into your `.streamlit/secrets.toml` file.")
+            st.error("❌ Key Missing: Wrap the key name in quotes inside `.streamlit/secrets.toml` e.g., `\"GEMINI_API_KEY\" = \"AQ...\"`")
         else:
             try:
-                # Target the native client with modern model matching the new AQ. architecture
+                # Direct Native Client Architecture
                 client = genai.Client(api_key=api_key)
                 response = client.models.generate_content(
                     model="gemini-2.5-flash", 
@@ -147,7 +159,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 ai_text = response.text
                 st.session_state.cached_markdown = ai_text
                 
-                # Conversion pipeline formatting standard markdown output into rich print documents
+                # HTML conversion engine for clear print documents
                 formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
                 formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
                 
@@ -178,7 +190,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             except Exception as e:
                 st.error(f"⚠️ Live AI Execution failed: {str(e)}")
 
-# Safe evaluation outside action paths to ensure the screen doesn't clear out or crash
+# Decoupled presentation checks to protect runtime threads
 if st.session_state.cached_markdown and st.session_state.cached_html:
     st.markdown("### 📄 Live AI-Generated Audit Output")
     st.markdown(st.session_state.cached_markdown) 
