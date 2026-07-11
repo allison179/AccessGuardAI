@@ -122,40 +122,52 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # 🔑 ADVANCED RESOLUTION PIPELINE: Robust variable parsing
+        # 🔑 FOOLPROOF DIAGNOSTIC & RESOLUTION PIPELINE
         api_key = None
+        
+        # 1. Check Streamlit native secrets
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
         except Exception:
             pass
         
-        # Smart line token cleaner
+        # 2. Hard Manual File Read (Scanning multiple layout possibilities)
         if not api_key:
-            target_paths = [".streamlit/secrets.toml", "secrets.toml"]
-            for path in target_paths:
-                if os.path.exists(path):
+            possible_paths = [
+                os.path.abspath(".streamlit/secrets.toml"),
+                os.path.abspath("../.streamlit/secrets.toml"),
+                os.path.abspath("secrets.toml")
+            ]
+            
+            st.info("🔍 Running Diagnostic Path Scan...")
+            for path in possible_paths:
+                exists = os.path.exists(path)
+                st.write(f"Checking path: `{path}` ➡️ {'FOUND' if exists else 'NOT FOUND'}")
+                
+                if exists:
                     try:
                         with open(path, "r") as f:
-                            for line in f:
+                            content = f.read()
+                            # Super flexible extraction: look for your key completely ignoring quotes or spacing variations
+                            for line in content.splitlines():
                                 if "GEMINI_API_KEY" in line and "=" in line:
-                                    # Split at the assignment operator
-                                    parts = line.split("=", 1)
-                                    # Clean up the key string value value 
-                                    raw_value = parts[1].strip()
-                                    # Clean up quotation wrappers cleanly
-                                    api_key = raw_value.strip('"').strip("'")
+                                    value_part = line.split("=", 1)[1].strip()
+                                    api_key = value_part.strip('"').strip("'").strip()
                                     break
-                    except Exception:
-                        pass
-        
+                    except Exception as e:
+                        st.warning(f"Failed to read file at {path}: {str(e)}")
+                if api_key:
+                    break
+
+        # 3. Last resort environment check
         if not api_key:
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Resolution Error: Could not parse key from `.streamlit/secrets.toml`. Verify it is saved as: `\"GEMINI_API_KEY\" = \"AQ...\"`")
+            st.error("❌ Key Resolution Error: Could not locate or parse your key string anywhere. Verify the file path matching above.")
         else:
             try:
-                # Direct Native Client Architecture
+                # Direct Native Client Architecture using your checked AQ key
                 client = genai.Client(api_key=api_key)
                 response = client.models.generate_content(
                     model="gemini-2.5-flash", 
@@ -193,6 +205,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 </body>
                 </html>
                 """
+                st.success("✅ AI Audit Generated Successfully!")
             except Exception as e:
                 st.error(f"⚠️ Live AI Execution failed: {str(e)}")
 
