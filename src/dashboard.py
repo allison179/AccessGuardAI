@@ -180,23 +180,22 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         """
 
         try:
-            # PRIORITIZE Streamlit Secrets first so secrets.toml is read instantly
+            # Check Streamlit's native secrets management container directly
             api_key = None
-            try:
+            if "GEMINI_API_KEY" in st.secrets:
                 api_key = st.secrets["GEMINI_API_KEY"]
-            except Exception:
+            else:
                 api_key = os.getenv("GEMINI_API_KEY")
 
-            if not api_key:
-                st.error("API Key Missing! Set GEMINI_API_KEY in your .streamlit/secrets.toml file.")
+            if not api_key or api_key == "your_actual_free_gemini_key_here":
+                st.error("API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # Initialize modern 2026 client
+            # Initialize modern client engine
             client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash", 
-                contents=prompt
+                model="gemini-2.5-flash", contents=prompt
             )
 
             st.success("Audit Complete!")
