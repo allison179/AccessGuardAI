@@ -199,7 +199,8 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             legacy_genai.configure(api_key=api_key)
             
             # Call model via traditional pipeline to handle custom enterprise prefixes
-            model = legacy_genai.GenerativeModel("gemini-1.5-flash")
+            # Call model using the correct legacy string prefix
+            model = legacy_genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(prompt)
 
             st.success("Audit Complete!")
