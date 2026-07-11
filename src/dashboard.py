@@ -182,38 +182,25 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         try:
             # 1. Fetch key out of all possible locations
             api_key = None
-            source = "None"
-            
             if st.secrets and "GEMINI_API_KEY" in st.secrets:
                 api_key = st.secrets["GEMINI_API_KEY"]
-                source = "Streamlit Secrets (.streamlit/secrets.toml)"
-            
-            if not api_key:
+            else:
                 api_key = os.getenv("GEMINI_API_KEY")
-                source = "OS Environment / Loaded .env"
 
-            # Clean and sanitize the key string format
             if api_key:
                 api_key = str(api_key).strip().strip('"').strip("'")
 
-            # --- VISUAL DIAGNOSTIC ON DASHBOARD ---
-            if api_key:
-                st.warning(f"🔍 **Diagnostic Info:** Key found from `{source}`. Length: {len(api_key)} chars. Starts with: `{api_key[:7]}`")
-            else:
-                st.error("🚨 **Diagnostic Info:** No key could be found in Secrets or Environment variables.")
-                st.stop()
-            # --------------------------------------
-
-            if api_key == "" or "your_actual_free" in api_key:
-                st.error("The key found is empty or a placeholder string.")
+            if not api_key or api_key == "" or "your_actual_free" in api_key:
+                st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Run clean client engine initialization
-            client = genai.Client(api_key=api_key)
-
-            response = client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
-            )
+            # 2. Initialize using legacy compatibility routing for enterprise keys
+            import google.generativeai as legacy_genai
+            legacy_genai.configure(api_key=api_key)
+            
+            # Call model via traditional pipeline to handle custom enterprise prefixes
+            model = legacy_genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
 
             st.success("Audit Complete!")
             st.markdown("#### 📄 AI-Generated Legal & Security Intelligence Report")
