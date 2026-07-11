@@ -198,8 +198,11 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             # 2. Run clean client engine initialization (Defaults to AI Studio backend)
             client = genai.Client(api_key=api_key)
 
+           # 2. Run clean client engine initialization (Defaults to AI Studio backend)
+            client = genai.Client(api_key=api_key)
+
             response = client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
+                model="gemini-2.5-flash-001", contents=prompt
             )
 
             st.success("Audit Complete!")
