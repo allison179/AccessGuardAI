@@ -4,4 +4,3 @@ __pycache__/
 *.pyc
 *.db
 .env
-.streamlit/secrets.toml
