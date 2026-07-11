@@ -180,21 +180,35 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         """
 
         try:
-            # 1. Fetch key and strip hidden whitespace/carriage returns (\r, \n)
+            # 1. Fetch key out of all possible locations
             api_key = None
-            if "GEMINI_API_KEY" in st.secrets:
+            source = "None"
+            
+            if st.secrets and "GEMINI_API_KEY" in st.secrets:
                 api_key = st.secrets["GEMINI_API_KEY"]
-            else:
+                source = "Streamlit Secrets (.streamlit/secrets.toml)"
+            
+            if not api_key:
                 api_key = os.getenv("GEMINI_API_KEY")
+                source = "OS Environment / Loaded .env"
 
+            # Clean and sanitize the key string format
             if api_key:
                 api_key = str(api_key).strip().strip('"').strip("'")
 
-            if not api_key or api_key == "your_actual_free_gemini_key_here" or api_key == "":
-                st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
+            # --- VISUAL DIAGNOSTIC ON DASHBOARD ---
+            if api_key:
+                st.warning(f"🔍 **Diagnostic Info:** Key found from `{source}`. Length: {len(api_key)} chars. Starts with: `{api_key[:7]}`")
+            else:
+                st.error("🚨 **Diagnostic Info:** No key could be found in Secrets or Environment variables.")
+                st.stop()
+            # --------------------------------------
+
+            if api_key == "" or "your_actual_free" in api_key:
+                st.error("The key found is empty or a placeholder string.")
                 st.stop()
 
-            # 2. Initialize modern client engine
+            # 2. Run clean client engine initialization
             client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
@@ -214,7 +228,4 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             
             ### ⚖️ Framework Impacts
             - **Flagged Deficiencies:** {user_data['regulatory_impact']}
-            
-            ### 🛡️ Fallback Notice
-            Please verify your local backend connection parameters to fetch live AI recommendations.
             """)
