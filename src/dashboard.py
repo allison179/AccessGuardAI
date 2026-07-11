@@ -99,6 +99,8 @@ if st.session_state.last_user != selected_user:
     st.session_state.cached_markdown = None
     st.session_state.cached_html = None
 
+import re # Make sure this import is available at the top or inside the block
+
 if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
     st.session_state.last_user = selected_user
@@ -125,13 +127,13 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         # 🔑 FOOLPROOF DIAGNOSTIC & RESOLUTION PIPELINE
         api_key = None
         
-        # 1. Check Streamlit native secrets
+        # 1. Try resolving native secrets structure
         try:
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
         except Exception:
             pass
         
-        # 2. Hard Manual File Read (Scanning multiple layout possibilities)
+        # 2. Hard Manual File Read (Regex Matching)
         if not api_key:
             possible_paths = [
                 os.path.abspath(".streamlit/secrets.toml"),
@@ -139,23 +141,18 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 os.path.abspath("secrets.toml")
             ]
             
-            st.info("🔍 Running Diagnostic Path Scan...")
             for path in possible_paths:
-                exists = os.path.exists(path)
-                st.write(f"Checking path: `{path}` ➡️ {'FOUND' if exists else 'NOT FOUND'}")
-                
-                if exists:
+                if os.path.exists(path):
                     try:
                         with open(path, "r") as f:
                             content = f.read()
-                            # Super flexible extraction: look for your key completely ignoring quotes or spacing variations
-                            for line in content.splitlines():
-                                if "GEMINI_API_KEY" in line and "=" in line:
-                                    value_part = line.split("=", 1)[1].strip()
-                                    api_key = value_part.strip('"').strip("'").strip()
-                                    break
-                    except Exception as e:
-                        st.warning(f"Failed to read file at {path}: {str(e)}")
+                            # Look for GEMINI_API_KEY regardless of quotes or spacing variations around the equals sign
+                            match = re.search(r'(?:"?GEMINI_API_KEY"?)\s*=\s*["\']([^"\']+)["\']', content)
+                            if match:
+                                api_key = match.group(1).strip()
+                                break
+                    except Exception:
+                        pass
                 if api_key:
                     break
 
@@ -164,10 +161,10 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            st.error("❌ Key Resolution Error: Could not locate or parse your key string anywhere. Verify the file path matching above.")
+            st.error("❌ Key Resolution Error: Key file was found, but content matching failed. Verify syntax formats inside your file context.")
         else:
             try:
-                # Direct Native Client Architecture using your checked AQ key
+                # Direct Native Client Architecture using verified AQ key
                 client = genai.Client(api_key=api_key)
                 response = client.models.generate_content(
                     model="gemini-2.5-flash", 
@@ -201,7 +198,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                     </div>
                     <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
                     {formatted_html_body}
-                    <script>window.onload = function() {{ window.print(); }}</style>
+                    <script>window.onload = function() {{ window.print(); }}</script>
                 </body>
                 </html>
                 """
