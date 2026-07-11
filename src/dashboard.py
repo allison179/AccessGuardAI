@@ -124,133 +124,51 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-       # 🔑 ALL-ENCOMPASSING KEY EXTRACTION ENGINE
-        api_key = None
-        
-        # 1. Try Streamlit native resolution first
+        # 🔑 Hardcoding your verified key directly to bypass all file resolution issues
+        api_key = "AQ.Ab8RN6KF0oA2EhwbvrI5BxymmiqrRrjmfc53wu9lPJ_He37YGg"
+
         try:
-            api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
-        except Exception:
-            pass
-        
-        # 2. Hard Manual File Extraction (Zero Formatter Dependency)
-        if not api_key:
-            possible_paths = [
-                os.path.abspath(".streamlit/secrets.toml"),
-                os.path.abspath("../.streamlit/secrets.toml"),
-                os.path.abspath("secrets.toml"),
-                "/mount/src/accessguardai/.streamlit/secrets.toml" # Explicit cloud mount path from your screen!
-            ]
+            # Direct Native Client Architecture using the hardcoded key directly
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash", 
+                contents=prompt
+            )
             
-            for path in possible_paths:
-                if os.path.exists(path):
-                    try:
-                        with open(path, "r") as f:
-                            file_content = f.read()
-                            # Clean the file of all quotes and spaces to normalize it
-                            clean_content = file_content.replace('"', '').replace("'", "").replace(" ", "")
-                            
-                            # Look for the raw keyword assignment
-                            for line in clean_content.splitlines():
-                                if "GEMINI_API_KEY=" in line:
-                                    api_key = line.split("=", 1)[1].strip()
-                                    break
-                    except Exception:
-                        pass
-                if api_key:
-                    break
-
-        # 3. Last resort environment fallback
-        if not api_key:
-            api_key = os.getenv("GEMINI_API_KEY")
+            ai_text = response.text
+            st.session_state.cached_markdown = ai_text
             
-            for path in possible_paths:
-                if os.path.exists(path):
-                    try:
-                        with open(path, "r") as f:
-                            for line in f:
-                                # Look for the keyword inside the line, ignoring quotes on the key side
-                                if "GEMINI_API_KEY" in line.replace('"', '').replace("'", "") and "=" in line:
-                                    # Split line into key and value segments safely at the first equals sign
-                                    _, raw_val = line.split("=", 1)
-                                    # Strip absolutely all quotes, newlines, and trailing spaces from the key value
-                                    api_key = raw_val.replace('"', '').replace("'", "").strip()
-                                    break
-                    except Exception:
-                        pass
-                if api_key:
-                    break
-
-        # 3. Last resort environment fallback
-        if not api_key:
-            api_key = os.getenv("GEMINI_API_KEY")
+            # HTML conversion engine for clear print documents
+            formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
+            formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
             
-            for path in possible_paths:
-                if os.path.exists(path):
-                    try:
-                        with open(path, "r") as f:
-                            for line in f:
-                                # Look for the target keyword
-                                if "GEMINI_API_KEY" in line and "=" in line:
-                                    # Split line into key and value segments
-                                    _, raw_val = line.split("=", 1)
-                                    # Clean absolutely all formatting anomalies, quotes, and whitespace variations
-                                    api_key = raw_val.replace('"', '').replace("'", "").strip()
-                                    break
-                    except Exception:
-                        pass
-                if api_key:
-                    break
-
-        # 3. Last resort environment fallback
-        if not api_key:
-            api_key = os.getenv("GEMINI_API_KEY")
-
-        if not api_key:
-            st.error("❌ Key Extraction Failure: Ensure file line matches `GEMINI_API_KEY = \"AQ...\"` format perfectly.")
-        else:
-            try:
-                # Initialize client using modern native structural formats
-                client = genai.Client(api_key=api_key)
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash", 
-                    contents=prompt
-                )
-                
-                ai_text = response.text
-                st.session_state.cached_markdown = ai_text
-                
-                # HTML conversion engine for clear print documents
-                formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
-                formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
-                
-                st.session_state.cached_html = f"""
-                <html>
-                <head>
-                    <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
-                    <style>
-                        body {{ font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #222; line-height: 1.6; max-width: 900px; margin: auto; }}
-                        h1 {{ color: #002244; border-bottom: 2px solid #003366; padding-bottom: 8px; font-size: 24px; }}
-                        h2 {{ color: #004488; font-size: 18px; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }}
-                        h3 {{ color: #333; font-size: 15px; margin-top: 15px; }}
-                        br {{ margin-bottom: 4px; }}
-                    </style>
-                </head>
-                <body>
-                    <div style="text-align:center; margin-bottom: 30px;">
-                        <span style="font-size: 40px;">🛡️</span>
-                        <h1 style="border:none; margin:5px 0 0 0;">AccessGuard AI Enterprise Compliance Document</h1>
-                        <p style="color:#666; font-style:italic; margin:5px 0;">Official Cryptographic Verification Audit Trail</p>
-                    </div>
-                    <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
-                    {formatted_html_body}
-                    <script>window.onload = function() {{ window.print(); }}</script>
-                </body>
-                </html>
-                """
-                st.success("✅ AI Audit Generated Successfully!")
-            except Exception as e:
-                st.error(f"⚠️ Live AI Execution failed: {str(e)}")
+            st.session_state.cached_html = f"""
+            <html>
+            <head>
+                <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
+                <style>
+                    body {{ font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #222; line-height: 1.6; max-width: 900px; margin: auto; }}
+                    h1 {{ color: #002244; border-bottom: 2px solid #003366; padding-bottom: 8px; font-size: 24px; }}
+                    h2 {{ color: #004488; font-size: 18px; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }}
+                    h3 {{ color: #333; font-size: 15px; margin-top: 15px; }}
+                    br {{ margin-bottom: 4px; }}
+                </style>
+            </head>
+            <body>
+                <div style="text-align:center; margin-bottom: 30px;">
+                    <span style="font-size: 40px;">🛡️</span>
+                    <h1 style="border:none; margin:5px 0 0 0;">AccessGuard AI Enterprise Compliance Document</h1>
+                    <p style="color:#666; font-style:italic; margin:5px 0;">Official Cryptographic Verification Audit Trail</p>
+                </div>
+                <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
+                {formatted_html_body}
+                <script>window.onload = function() {{ window.print(); }}</style>
+            </body>
+            </html>
+            """
+            st.success("✅ AI Audit Generated Successfully!")
+        except Exception as e:
+            st.error(f"⚠️ Live AI Execution failed: {str(e)}")
 
 # Decoupled presentation checks to protect runtime threads
 if st.session_state.cached_markdown and st.session_state.cached_html:
