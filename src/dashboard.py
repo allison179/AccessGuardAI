@@ -1,8 +1,15 @@
 import os
+import io
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
+
+# Import ReportLab elements safely
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.colors import HexColor
 
 # Initialize environment variables from .env
 load_dotenv()
@@ -105,63 +112,73 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
 
     with st.spinner(f"Compiling live compliance mappings and log context for {selected_user}..."):
         
-        # Build the dynamic report content string so we can display AND download it
-        report_content = f"""# Cybersecurity Incident Report: High-Risk IAM User Profile Analysis
-
-**Date:** July 12, 2026 | **Subject:** Analysis of High-Risk User Profile "{user_data['username']}"
-
----
-
-### 1. 📋 EXECUTIVE THREAT SUMMARY
-The user profile for "{user_data['username']}" represents an immediate and critical security incident with a {user_data['risk_score']}/100 risk score, indicating an extreme compromise potential. The confluence of access volatility signifies an imminent threat to the organization's information assets.
-
-**Key Threat Indicators:**
-* **Privileged Admin Account:** {"Yes - The account possesses elevated permissions, granting extensive access to core database architectures." if user_data['is_privileged_user'] else "No - Standard non-administrative client parameters apply."}
-* **Dormancy Profile:** An inactive account for {user_data['days_inactive']} days without credential rotation represents an unmonitored attack vector.
-* **Authentication Anomalies:** {user_data['failed_logins']} failed login attempts confirm active access volatility.
-* **Calculated Risk Index:** Explicit {user_data['risk_score']}/100 score mandates immediate Blue-Team intervention tasks.
-
-**Corporate "Blast Radius":**
-A successful compromise of "{user_data['username']}"'s credentials would lead to an expanded threat surface including complete system takeover risks, massive data breaches, and heavy regulatory compliance financial penalties under GDPR, ISO 27001, and SOC 2 frameworks.
-
----
-
-### 2. ⚖️ REGULATORY NON-COMPLIANCE ANALYSIS
-The current footprint of the user profile demonstrates deviations from primary international compliance standards:
-
-#### ISO/IEC 27001:2022 Framework
-* **Control A.9.2.3 (Privileged Access Rights):** The existence of a dormant, high-risk account actively under threat patterns violates lifecycle restriction parameters.
-* **Control A.9.4.2 (Secure Log-on Procedures):** Monitoring utilities failed to actively alert on brute force indicators prior to threshold exhaustion.
-
-#### SOC 2 Type II - Trust Services Criteria (Security)
-* **CC6.1 - Access Control:** Logical security measures failed to proactively restrict, disable, or protect the dormant profile.
-* **CC4.1 - Monitoring Activities:** Extended system dormancy spikes show an active breakdown in automated baseline alarming.
-
-#### GDPR (General Data Protection Regulation)
-* **Article 32 - Security of Processing:** Inability to lock vulnerable access paths violates processing integrity mandates.
-* **Article 5(1)(c) - Data Minimisation:** Maintaining extensive account permissions during prolonged inactivity violates structural processing principles.
-
----
-
-### 3. 🛡️ PLAYBOOK MITIGATION ACTIONS
-
-#### Immediate Containment Actions (Critical Priority)
-1. **Account Lockout/Disablement:** Suspend the user account across all active directory servers and cloud IAM platforms immediately.
-2. **Incident Alert Notification:** Route a priority response notice to the Security Operations Center (SOC) management queue.
-3. **Log Analysis & Forensic Review:** Extract past authentication logs to track potential lateral movement or persistent changes.
-4. **Source IP Perimeter Blocking:** Perimeter firewall ban applied to offending authorization source nodes.
-"""
-
+        # 1. Render beautiful text inside the Streamlit dashboard app interface
         st.success("Audit Complete!")
         st.markdown("### 📄 AI-Generated Legal & Security Intelligence Report")
-        st.info(report_content)
         
+        report_markdown = f"""
+        ## Cybersecurity Incident Report: High-Risk IAM User Profile Analysis
+        **Date:** July 12, 2026 | **Subject:** Analysis of High-Risk User Profile "{user_data['username']}"
+        
+        ---
+        ### 1. 📋 EXECUTIVE THREAT SUMMARY
+        The user profile for "{user_data['username']}" represents an immediate and critical security incident with a {user_data['risk_score']}/100 risk score.
+        * **Privileged Admin Account:** {"Yes - Elevated cloud administrative permissions detected." if user_data['is_privileged_user'] else "No - Standard client clearance."}
+        * **Dormancy Profile:** {user_data['days_inactive']} days inactive without rotational validation.
+        * **Authentication Anomalies:** {user_data['failed_logins']} failed login events.
+        
+        ### 2. ⚖️ REGULATORY NON-COMPLIANCE ANALYSIS
+        * **ISO/IEC 27002 Control A.9.2.3 / A.9.4.2:** Failure to restrict dormant lifecycle states.
+        * **SOC 2 CC6.1 & CC4.1:** Deficiencies in perimeter credential tracking and rate-limiting.
+        * **GDPR Article 32:** Storage authorization principles violated.
+        
+        ### 3. 🛡️ PLAYBOOK MITIGATION ACTIONS
+        1. **Account Lockout:** Terminate active sessions in the IdP immediately.
+        2. **MFA Reset:** Enforce mandatory physical token registration.
+        """
+        st.info(report_markdown)
+
+        # 2. Generate a professional PDF using an in-memory byte buffer to avoid file system drops
+        pdf_buffer = io.BytesIO()
+        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+        story = []
+        
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], textColor=HexColor('#003366'), fontSize=18, spaceAfter=15)
+        meta_style = ParagraphStyle('MetaStyle', parent=styles['Normal'], textColor=HexColor('#555555'), fontSize=10, spaceAfter=20)
+        h2_style = ParagraphStyle('H2Style', parent=styles['Heading2'], textColor=HexColor('#004488'), fontSize=14, spaceBefore=12, spaceAfter=8)
+        body_style = ParagraphStyle('BodyStyle', parent=styles['BodyText'], fontSize=10, leading=14, spaceAfter=6)
+        
+        story.append(Paragraph("🛡️ AccessGuard AI Security Compliance Audit", title_style))
+        story.append(Paragraph(f"<b>Date:</b> July 12, 2026 | <b>Subject:</b> Threat Assessment for User Account: <i>{user_data['username']}</i>", meta_style))
+        story.append(Spacer(1, 10))
+        
+        story.append(Paragraph("1. Executive Threat Summary", h2_style))
+        story.append(Paragraph(f"• Account Risk Profile Index: {user_data['risk_score']}/100 ({user_data['risk_tier']} Risk Category)", body_style))
+        story.append(Paragraph(f"• Privileged Admin Status: {'Elevated privileges active.' if user_data['is_privileged_user'] else 'Standard User Status.'}", body_style))
+        story.append(Paragraph(f"• Authentication Telemetry Metrics: {user_data['failed_logins']} recorded baseline access failures.", body_style))
+        story.append(Paragraph(f"• Inactivity Window Log: {user_data['days_inactive']} sequential days of account dormancy.", body_style))
+        
+        story.append(Paragraph("2. Regulatory Non-Compliance Assessment Matrices", h2_style))
+        story.append(Paragraph(f"• <b>Active Framework Triggers:</b> {user_data['regulatory_impact']}", body_style))
+        story.append(Paragraph("• <b>SOC 2 Type II (TSC CC6.1):</b> Logical access boundary exception due to automated protection timeout lag.", body_style))
+        story.append(Paragraph("• <b>ISO/IEC 27001:2022 (Control A.9.4.2):</b> Log-on mechanics permitted anomalous velocity bursts without triggering temporary locks.", body_style))
+        story.append(Paragraph("• <b>GDPR Compliance Violations (Article 32):</b> Maintaining high-clearance access pathways during massive dormancy cycles fails data processing minimization rules.", body_style))
+        
+        story.append(Paragraph("3. Prescribed Incident Response Containment Playbook", h2_style))
+        story.append(Paragraph("1. <b>Session Invalidation:</b> Transmit an explicit hot-lock order to the Identity Provider (IdP) layer to drop persistent cookies.", body_style))
+        story.append(Paragraph("2. <b>Out-of-Band Verification Setup:</b> Trigger a gateway configuration requiring hard WebAuthn hardware keys to re-verify identity access.", body_style))
+        story.append(Paragraph("3. <b>IAM Role Revocation:</b> Automatically transition the user asset into a sandbox group, stripping administrative clearance pending complete manual authorization review.", body_style))
+        
+        doc.build(story)
+        pdf_bytes = pdf_buffer.getvalue()
+
         # --- THE DOWNLOAD BUTTON FEATURE ---
         st.markdown("### 💾 Export Compliance Artifacts")
         st.download_button(
-            label="📥 Download Security Audit Report (.md)",
-            data=report_content,
-            file_name=f"AccessGuard_Audit_{user_data['username']}.md",
-            mime="text/markdown",
-            key=f"download_btn_{user_data['username']}"
+            label="📥 Download Official Security Audit Report (PDF)",
+            data=pdf_bytes,
+            file_name=f"AccessGuard_Audit_{user_data['username']}.pdf",
+            mime="application/pdf",
+            key=f"download_pdf_btn_{user_data['username']}"
         )
