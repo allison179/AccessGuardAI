@@ -5,7 +5,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from google import genai
 
-# Initialize environment variables from .env
+# Load environment variables just in case
 load_dotenv()
 
 # Set page layout to wide and configure clean UI styling properties
@@ -95,7 +95,7 @@ st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent"
 user_options = df["username"].tolist()
 selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
 
-# Initialize session states for caching data across screen interactions
+# Initialize session states cleanly to prevent dashboard crashes
 if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
 if "cached_html" not in st.session_state: st.session_state.cached_html = None
 if "last_user" not in st.session_state: st.session_state.last_user = None
@@ -127,54 +127,61 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
+        # 🔑 Failsafe Key Finder: Check Secrets first, then check regular environment variables
+        api_key = None
         try:
-            # Safely request keys out of Streamlit Secrets configuration mappings
             api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("general", {}).get("GEMINI_API_KEY")
-            
-            if not api_key:
-                raise ValueError("GEMINI_API_KEY missing from .streamlit/secrets.toml config pipeline.")
+        except Exception:
+            pass
+        
+        if not api_key:
+            api_key = os.getenv("GEMINI_API_KEY")
 
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
-            
-            ai_text = response.text
-            st.session_state.cached_markdown = ai_text
-            
-            # Simple conversion helper to turn markdown formatting elements into clear print-ready HTML elements
-            formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
-            formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
-            
-            st.session_state.cached_html = f"""
-            <html>
-            <head>
-                <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
-                <style>
-                    body {{ font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #222; line-height: 1.6; max-width: 900px; margin: auto; }}
-                    h1 {{ color: #002244; border-bottom: 2px solid #003366; padding-bottom: 8px; font-size: 24px; }}
-                    h2 {{ color: #004488; font-size: 18px; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }}
-                    h3 {{ color: #333; font-size: 15px; margin-top: 15px; }}
-                    br {{ margin-bottom: 4px; }}
-                </style>
-            </head>
-            <body>
-                <div style="text-align:center; margin-bottom: 30px;">
-                    <span style="font-size: 40px;">🛡️</span>
-                    <h1 style="border:none; margin:5px 0 0 0;">AccessGuard AI Enterprise Compliance Document</h1>
-                    <p style="color:#666; font-style:italic; margin:5px 0;">Official Cryptographic Verification Audit Trail</p>
-                </div>
-                <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
-                {formatted_html_body}
-                <script>window.onload = function() {{ window.print(); }}</script>
-            </body>
-            </html>
-            """
-        except Exception as e:
-            st.error(f"Live AI Execution failed: {str(e)}")
+        if not api_key:
+            st.error("❌ API KEY NOT FOUND: Please ensure `GEMINI_API_KEY` is added to your `.env` file or `.streamlit/secrets.toml` correctly.")
+        else:
+            try:
+                client = genai.Client(api_key=api_key)
+                response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
+                
+                ai_text = response.text
+                st.session_state.cached_markdown = ai_text
+                
+                # Conversion helper to turn markdown markers into printable HTML elements
+                formatted_html_body = ai_text.replace("### ", "<h3>").replace("## ", "<h2>").replace("# ", "<h1>")
+                formatted_html_body = formatted_html_body.replace("**", "<strong>").replace("\n", "<br/>")
+                
+                st.session_state.cached_html = f"""
+                <html>
+                <head>
+                    <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
+                    <style>
+                        body {{ font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #222; line-height: 1.6; max-width: 900px; margin: auto; }}
+                        h1 {{ color: #002244; border-bottom: 2px solid #003366; padding-bottom: 8px; font-size: 24px; }}
+                        h2 {{ color: #004488; font-size: 18px; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }}
+                        h3 {{ color: #333; font-size: 15px; margin-top: 15px; }}
+                        br {{ margin-bottom: 4px; }}
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align:center; margin-bottom: 30px;">
+                        <span style="font-size: 40px;">🛡️</span>
+                        <h1 style="border:none; margin:5px 0 0 0;">AccessGuard AI Enterprise Compliance Document</h1>
+                        <p style="color:#666; font-style:italic; margin:5px 0;">Official Cryptographic Verification Audit Trail</p>
+                    </div>
+                    <hr style="border:0; border-top:1px solid #ccc; margin-bottom:20px;"/>
+                    {formatted_html_body}
+                    <script>window.onload = function() {{ window.print(); }}</style>
+                </body>
+                </html>
+                """
+            except Exception as e:
+                st.error(f"⚠️ Live AI Execution failed: {str(e)}")
 
-# Safe out-of-loop execution rendering pattern
-if st.session_state.cached_markdown:
+# Safe out-of-loop execution rendering pattern (Prevents crashes if variable is empty)
+if st.session_state.cached_markdown and st.session_state.cached_html:
     st.markdown("### 📄 Live AI-Generated Audit Output")
-    st.markdown(st.session_state.cached_markdown) # Renders cleanly in the app UI as rich markdown text
+    st.markdown(st.session_state.cached_markdown) 
     
     st.markdown("---")
     st.markdown("### 💾 Export Compliance Artifacts")
