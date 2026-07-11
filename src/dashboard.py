@@ -124,12 +124,12 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # 🔑 Hardcoding your verified key directly to bypass all file resolution issues
-        api_key = "AQ.Ab8RN6KF0oA2EhwbvrI5BxymmiqrRrjmfc53wu9lPJ_He37YGg"
+        # 🔑 Inject directly into the OS environment variables to bypass OAuth token confusion
+        os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KF0oA2EhwbvrI5BxymmiqrRrjmfc53wu9lPJ_He37YGg"
 
         try:
-            # Direct Native Client Architecture using the hardcoded key directly
-            client = genai.Client(api_key=api_key)
+            # Initialize without arguments so it implicitly pulls from the environment variable natively
+            client = genai.Client()
             response = client.models.generate_content(
                 model="gemini-2.5-flash", 
                 contents=prompt
