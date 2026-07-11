@@ -72,24 +72,24 @@ color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical
 with left_col:
     st.markdown("### 📊 Risk Tier Distribution")
     fig = px.pie(df, names="risk_tier", color="risk_tier", color_discrete_map=color_map, hole=0.4)
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, use_container_width=True)
 
 with right_col:
     st.markdown("### 📈 User Risk Scores vs. Failed Logins")
     fig2 = px.scatter(df, x="failed_logins", y="risk_score", color="risk_tier", size="days_inactive",
                      hover_name="username", color_discrete_map=color_map,
                      labels={"failed_logins": "Failed Login Attempts", "risk_score": "Calculated Risk Score"})
-    st.plotly_chart(fig2, width="stretch")
+    st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
 
 # --- DETAILED DATA TABLE ---
 st.markdown("### 🔍 Identity & Compliance Risk Registry")
 def highlight_critical(val):
-    return f"background-color: #bb1212" if val == "Critical" else (f"background-color: #fff3cd" if val == "High" else "")
+    return "background-color: #bb1212" if val == "Critical" else ("background-color: #fff3cd" if val == "High" else "")
 
 styled_df = df.style.map(highlight_critical, subset=["risk_tier"])
-st.dataframe(styled_df, width="stretch")
+st.dataframe(styled_df, use_container_width=True)
 
 st.markdown("---")
 
