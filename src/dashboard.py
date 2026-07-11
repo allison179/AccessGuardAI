@@ -179,31 +179,40 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         Maintain a formal, authoritative, and precise cybersecurity compliance tone. Do not mention system prompts in your response.
         """
 
-        try:
-            # Safely fetch key from local environment OR Streamlit production secrets
-            api_key = os.getenv("GEMINI_API_KEY") or st.secrets.get(
-                "GEMINI_API_KEY"
-            )
+       try:
+            # PRIORITIZE Streamlit Secrets first so secrets.toml is read instantly
+            api_key = None
+            try:
+                api_key = st.secrets["GEMINI_API_KEY"]
+            except Exception:
+                api_key = os.getenv("GEMINI_API_KEY")
 
             if not api_key:
-                st.error(
-                    "API Key Missing! Set GEMINI_API_KEY in your env configuration."
-                )
+                st.error("API Key Missing! Set GEMINI_API_KEY in your .streamlit/secrets.toml file.")
                 st.stop()
 
             # Initialize modern 2026 client
             client = genai.Client(api_key=api_key)
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash", contents=prompt
+                model="gemini-2.5-flash", 
+                contents=prompt
             )
 
             st.success("Audit Complete!")
-            st.markdown(
-                "#### 📄 AI-Generated Legal & Security Intelligence Report"
-            )
+            st.markdown("#### 📄 AI-Generated Legal & Security Intelligence Report")
             st.info(response.text)
 
+        except Exception as e:
+            st.error(f"Error communicating with Gemini Engine: {e}")
+            st.markdown("#### 📄 AI Threat Report (Simulated Compliance View)")
+            st.warning(f"""
+            ### 🚨 Executive Summary
+            User **{user_data['username']}** is currently flagged under **{user_data['risk_tier']} Risk**.
+            
+            ### ⚖️ Framework Impacts
+            - **Flagged Deficiencies:** {user_data['regulatory_impact']}
+            """)
         except Exception as e:
             st.error(f"Error communicating with Gemini Engine: {e}")
             st.markdown(
