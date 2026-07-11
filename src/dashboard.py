@@ -187,6 +187,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             else:
                 api_key = os.getenv("GEMINI_API_KEY")
 
+            # Clean and sanitize the key string format
             if api_key:
                 api_key = str(api_key).strip().strip('"').strip("'")
 
@@ -194,14 +195,12 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Initialize using legacy compatibility routing for enterprise keys
-            import google.generativeai as legacy_genai
-            legacy_genai.configure(api_key=api_key)
-            
-            # Call model via traditional pipeline to handle custom enterprise prefixes
-            # Call model using the correct legacy string prefix
-            model = legacy_genai.GenerativeModel("gemini-2.5-flash")
-            response = model.generate_content(prompt)
+            # 2. Run clean client engine initialization (Defaults to AI Studio backend)
+            client = genai.Client(api_key=api_key)
+
+            response = client.models.generate_content(
+                model="gemini-2.5-flash", contents=prompt
+            )
 
             st.success("Audit Complete!")
             st.markdown("#### 📄 AI-Generated Legal & Security Intelligence Report")
