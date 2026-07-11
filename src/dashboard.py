@@ -124,8 +124,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         3. INCIDENT RESPONSE PLAYBOOK MITIGATION ACTIONS
         """
         
-        # 🔑 ULTRA-RESILIENT EXTRACTION ENGINE
-        # 🔑 PERFECT EXTRACTION ENGINE
+       # 🔑 ALL-ENCOMPASSING KEY EXTRACTION ENGINE
         api_key = None
         
         # 1. Try Streamlit native resolution first
@@ -139,8 +138,31 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             possible_paths = [
                 os.path.abspath(".streamlit/secrets.toml"),
                 os.path.abspath("../.streamlit/secrets.toml"),
-                os.path.abspath("secrets.toml")
+                os.path.abspath("secrets.toml"),
+                "/mount/src/accessguardai/.streamlit/secrets.toml" # Explicit cloud mount path from your screen!
             ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r") as f:
+                            file_content = f.read()
+                            # Clean the file of all quotes and spaces to normalize it
+                            clean_content = file_content.replace('"', '').replace("'", "").replace(" ", "")
+                            
+                            # Look for the raw keyword assignment
+                            for line in clean_content.splitlines():
+                                if "GEMINI_API_KEY=" in line:
+                                    api_key = line.split("=", 1)[1].strip()
+                                    break
+                    except Exception:
+                        pass
+                if api_key:
+                    break
+
+        # 3. Last resort environment fallback
+        if not api_key:
+            api_key = os.getenv("GEMINI_API_KEY")
             
             for path in possible_paths:
                 if os.path.exists(path):
