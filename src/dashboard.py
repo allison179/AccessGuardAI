@@ -187,7 +187,6 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             else:
                 api_key = os.getenv("GEMINI_API_KEY")
 
-            # Clean and sanitize the key string format
             if api_key:
                 api_key = str(api_key).strip().strip('"').strip("'")
 
@@ -195,14 +194,17 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Run clean client engine initialization (Defaults to AI Studio backend)
-            client = genai.Client(api_key=api_key)
+            # 2. Force the modern SDK to bypass public servers and route via Vertex AI
+            import os
+            os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+            os.environ["GOOGLE_API_KEY"] = api_key
+            
+            # Initialize client matching your corporate project environment parameters
+            client = genai.Client()
 
-           # 2. Run clean client engine initialization (Defaults to AI Studio backend)
-            client = genai.Client(api_key=api_key)
-
+            # Execute via the enterprise baseline model path
             response = client.models.generate_content(
-                model="gemini-2.5-flash-001", contents=prompt
+                model="gemini-2.5-flash", contents=prompt
             )
 
             st.success("Audit Complete!")
