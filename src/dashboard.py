@@ -1,15 +1,8 @@
 import os
-import io
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
-
-# Import ReportLab elements safely
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.colors import HexColor
 
 # Initialize environment variables from .env
 load_dotenv()
@@ -132,53 +125,63 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
         * **SOC 2 CC6.1 & CC4.1:** Deficiencies in perimeter credential tracking and rate-limiting.
         * **GDPR Article 32:** Storage authorization principles violated.
         
-        ### 3. 🛡️ PLAYBOOK MITIGATION ACTIONS
+        ### 🛡️ 3. PLAYBOOK MITIGATION ACTIONS
         1. **Account Lockout:** Terminate active sessions in the IdP immediately.
         2. **MFA Reset:** Enforce mandatory physical token registration.
         """
         st.info(report_markdown)
 
-        # 2. Generate a professional PDF using an in-memory byte buffer to avoid file system drops
-        pdf_buffer = io.BytesIO()
-        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
-        story = []
-        
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], textColor=HexColor('#003366'), fontSize=18, spaceAfter=15)
-        meta_style = ParagraphStyle('MetaStyle', parent=styles['Normal'], textColor=HexColor('#555555'), fontSize=10, spaceAfter=20)
-        h2_style = ParagraphStyle('H2Style', parent=styles['Heading2'], textColor=HexColor('#004488'), fontSize=14, spaceBefore=12, spaceAfter=8)
-        body_style = ParagraphStyle('BodyStyle', parent=styles['BodyText'], fontSize=10, leading=14, spaceAfter=6)
-        
-        story.append(Paragraph("🛡️ AccessGuard AI Security Compliance Audit", title_style))
-        story.append(Paragraph(f"<b>Date:</b> July 12, 2026 | <b>Subject:</b> Threat Assessment for User Account: <i>{user_data['username']}</i>", meta_style))
-        story.append(Spacer(1, 10))
-        
-        story.append(Paragraph("1. Executive Threat Summary", h2_style))
-        story.append(Paragraph(f"• Account Risk Profile Index: {user_data['risk_score']}/100 ({user_data['risk_tier']} Risk Category)", body_style))
-        story.append(Paragraph(f"• Privileged Admin Status: {'Elevated privileges active.' if user_data['is_privileged_user'] else 'Standard User Status.'}", body_style))
-        story.append(Paragraph(f"• Authentication Telemetry Metrics: {user_data['failed_logins']} recorded baseline access failures.", body_style))
-        story.append(Paragraph(f"• Inactivity Window Log: {user_data['days_inactive']} sequential days of account dormancy.", body_style))
-        
-        story.append(Paragraph("2. Regulatory Non-Compliance Assessment Matrices", h2_style))
-        story.append(Paragraph(f"• <b>Active Framework Triggers:</b> {user_data['regulatory_impact']}", body_style))
-        story.append(Paragraph("• <b>SOC 2 Type II (TSC CC6.1):</b> Logical access boundary exception due to automated protection timeout lag.", body_style))
-        story.append(Paragraph("• <b>ISO/IEC 27001:2022 (Control A.9.4.2):</b> Log-on mechanics permitted anomalous velocity bursts without triggering temporary locks.", body_style))
-        story.append(Paragraph("• <b>GDPR Compliance Violations (Article 32):</b> Maintaining high-clearance access pathways during massive dormancy cycles fails data processing minimization rules.", body_style))
-        
-        story.append(Paragraph("3. Prescribed Incident Response Containment Playbook", h2_style))
-        story.append(Paragraph("1. <b>Session Invalidation:</b> Transmit an explicit hot-lock order to the Identity Provider (IdP) layer to drop persistent cookies.", body_style))
-        story.append(Paragraph("2. <b>Out-of-Band Verification Setup:</b> Trigger a gateway configuration requiring hard WebAuthn hardware keys to re-verify identity access.", body_style))
-        story.append(Paragraph("3. <b>IAM Role Revocation:</b> Automatically transition the user asset into a sandbox group, stripping administrative clearance pending complete manual authorization review.", body_style))
-        
-        doc.build(story)
-        pdf_bytes = pdf_buffer.getvalue()
+        # 2. Compile clean corporate HTML report string for local generation
+        html_content = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; color: #333; margin: 40px; line-height: 1.6; }}
+                h1 {{ color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; }}
+                h2 {{ color: #004488; margin-top: 20px; }}
+                .meta {{ color: #666; font-style: italic; margin-bottom: 30px; }}
+                ul {{ margin-left: 20px; }}
+                .highlight {{ background-color: #f8d7da; padding: 10px; border-left: 5px solid #dc3545; margin: 15px 0; }}
+            </style>
+        </head>
+        <body>
+            <h1>🛡️ AccessGuard AI Security Compliance Audit</h1>
+            <div class="meta">Date: July 12, 2026 | Subject: Threat Assessment Report for identity access: {user_data['username']}</div>
+            
+            <h2>1. Executive Threat Summary</h2>
+            <div class="highlight">
+                <strong>Account Risk Index:</strong> {user_data['risk_score']}/100 Category Tier Level: {user_data['risk_tier']}
+            </div>
+            <ul>
+                <li><strong>Privileged Admin Privileges:</strong> {'Elevated cloud credentials status active.' if user_data['is_privileged_user'] else 'Standard Authorization Profile Clearance.'}</li>
+                <li><strong>Access Failure Spikes:</strong> {user_data['failed_logins']} failed authentication points logged within current cycle.</li>
+                <li><strong>Dormancy Tracking Interval:</strong> {user_data['days_inactive']} consecutive operational monitoring days inactive.</li>
+            </ul>
+            
+            <h2>2. Regulatory Non-Compliance Impact Matrix</h2>
+            <ul>
+                <li><strong>Identified System Discrepancies:</strong> {user_data['regulatory_impact']}</li>
+                <li><strong>SOC 2 Type II (TSC CC6.1 Access Parameters):</strong> Logical protection exception via perimeter credential validation timeline lag.</li>
+                <li><strong>ISO/IEC 27001:2022 Framework (Control A.9.4.2):</strong> Entry node protocols permitted authentication velocity bursts without token invalidation locks.</li>
+                <li><strong>GDPR Standards (Article 32 Security Integrity):</strong> Authorization state preservation during long dormancy windows breaks storage minimization rules.</li>
+            </ul>
+            
+            <h2>3. Containment Incident Mitigation Plan</h2>
+            <ol>
+                <li><strong>Session Cancellation:</strong> Dispatch a hard lockout request payload directly to the central Identity Provider layer.</li>
+                <li><strong>Out-of-Band Mandatory Reset:</strong> Enforce an architectural checkpoint necessitating physical WebAuthn authentication.</li>
+                <li><strong>IAM Permissions Restructuring:</strong> Roll back active authorization profiles until structural manual configuration reviews conclude.</li>
+            </ol>
+        </body>
+        </html>
+        """
 
-        # --- THE DOWNLOAD BUTTON FEATURE ---
+        # --- THE DOWNLOAD BUTTON FEATURE (HTML Printable format) ---
         st.markdown("### 💾 Export Compliance Artifacts")
         st.download_button(
-            label="📥 Download Official Security Audit Report (PDF)",
-            data=pdf_bytes,
-            file_name=f"AccessGuard_Audit_{user_data['username']}.pdf",
-            mime="application/pdf",
-            key=f"download_pdf_btn_{user_data['username']}"
+            label="📥 Download Official Security Audit Report (HTML/Printable PDF)",
+            data=html_content,
+            file_name=f"AccessGuard_Audit_{user_data['username']}.html",
+            mime="text/html",
+            key=f"download_html_btn_{user_data['username']}"
         )
