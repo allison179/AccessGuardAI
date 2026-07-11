@@ -194,15 +194,15 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
                 st.error("🚨 API Key Missing! Please populate your live key inside .streamlit/secrets.toml")
                 st.stop()
 
-            # 2. Force the modern SDK to bypass public servers and route via Vertex AI
+            # 2. Force the modern SDK to route via Google Cloud Vertex AI infrastructure
             import os
             os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
             os.environ["GOOGLE_API_KEY"] = api_key
             
-            # Initialize client matching your corporate project environment parameters
+            # Initialize client matching your corporate project parameters
             client = genai.Client()
 
-            # Execute via the enterprise baseline model path
+            # Execute via the enterprise model path
             response = client.models.generate_content(
                 model="gemini-2.5-flash", contents=prompt
             )
