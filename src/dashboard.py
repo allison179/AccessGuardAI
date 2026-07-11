@@ -104,79 +104,64 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
 
     with st.spinner(f"Compiling live compliance mappings and log context for {selected_user}..."):
-        prompt = f"""
-        You are an expert Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor specializing in IT Laws (ISO/IEC 27001, SOC 2 Type II, and GDPR).
-        Provide a massive, deeply thorough corporate threat analysis report for user: {user_data['username']}.
-        """
         
-        try:
-            from google import genai
-            api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", ""))
-            if not api_key or "your_actual_free" in api_key:
-                raise ValueError("Network key missing")
-                
-            client = genai.Client(api_key=str(api_key).strip().strip('"').strip("'"))
-            response = client.models.generate_content(model="gemini-1.5-flash", contents=prompt)
-            st.success("Audit Complete!")
-            st.markdown("#### 📄 AI-Generated Legal & Security Intelligence Report")
-            st.info(response.text)
-            
-        except Exception:
-            # 🌟 RESTORED ORIGINAL DEEP REPORT TEMPLATE 🌟
-            st.success("Audit Complete!")
-            st.markdown("### 📄 AI-Generated Legal & Security Intelligence Report")
-            
-            st.info(f"""
-            ## Cybersecurity Incident Report: High-Risk IAM User Profile Analysis
-            
-            **Date:** October 26, 2023 | **Report ID:** CIR-IAM-20231026-001 | **Subject:** Analysis of High-Risk User Profile "{user_data['username']}"
-            
-            ---
-            
-            ### 1. 📋 EXECUTIVE THREAT SUMMARY
-            The user profile for "{user_data['username']}" represents an immediate and critical security incident with a {user_data['risk_score']}/100 risk score, indicating an extreme compromise potential. The confluence of a dormant, highly privileged administrator account being actively targeted by access volatility signifies an imminent threat to the organization's information assets and operational integrity.
-            
-            **Key Threat Indicators:**
-            * **Privileged Admin Account:** {"Yes - This is the most critical factor. The account possesses elevated permissions, granting extensive access to core production database architecture." if user_data['is_privileged_user'] else "No - Standard non-administrative client parameters apply."}
-            * **Dormancy Profile:** An inactive account for **{user_data['days_inactive']} days** without credentials validation represents an unmonitored attack vector.
-            * **Authentication Anomalies:** **{user_data['failed_logins']} failed login attempts** confirms active brute-force targeting blocks.
-            * **Calculated Risk Index:** Explicit **{user_data['risk_score']}/100 score** mandates immediate blue-team intervention tasks.
-            
-            **Corporate "Blast Radius":**
-            A successful compromise of "{user_data['username']}"'s credentials would lead to a catastrophic blast radius including:
-            * **Complete System Takeover:** Attacker could gain administrative controls over cloud systems.
-            * **Massive Data Breach:** Unauthorized access, exfiltration, or destruction of production data assets.
-            * **Regulatory Fines & Legal Ramifications:** Heavy compliance financial penalties under GDPR, ISO 27001, and SOC 2.
-            
-            ---
-            
-            ### 2. ⚖️ REGULATORY NON-COMPLIANCE ANALYSIS
-            The current footprint of the user profile demonstrates severe deviations from established compliance standards:
-            
-            #### ISO/IEC 27001:2013 - Information Security Management System
-            * **A.9.2.3 - Management of privileged access rights:** The existence of a dormant, high-risk account actively under attack violates privileged lifecycle restrictions.
-            * **A.12.4.1 - Event logging:** Monitoring utilities failed to actively alert on brute force indicators prior to threshold exhaustion.
-            
-            #### SOC 2 Type II - Trust Services Criteria (Security)
-            * **CC6.1 - Access Control (Known Flag):** Logical security measures failed to identify, disable, and protect a dormant privileged account.
-            * **CC4.1 - Monitoring Activities:** Extended system dormancy spikes show a clear breakdown in automated baseline alarming.
-            
-            #### GDPR (General Data Protection Regulation)
-            * **Article 32 - Security of processing (Known Flag):** Inability to lock access paths violates processing integrity mandates.
-            * **Article 5(1)(c) - Data minimisation:** Maintaining extensive account permissions during prolonged inactivity violates structural data principles.
-            
-            ---
-            
-            ### 3. 🛡️ PLAYBOOK MITIGATION ACTIONS
-            
-            #### Immediate Containment Actions (Critical Priority - To be executed NOW)
-            1. **Account Lockout/Disablement:** Suspended the user account across all corporate directories and cloud IAM platforms immediately.
-            2. **Incident Alert Notification:** Route a priority notice ticket to the Security Operations Center (SOC) and Incident Response Team Lead.
-            3. **Log Analysis & Forensic Review:** Extract the past 180 days of system logs to track lateral movements or persistence changes.
-            4. **Source IP Perimeter Blocking:** Blacklist offending authentication addresses on firewalls and Web Application Firewalls (WAF).
-            
-            #### Long-Term Compliance Recovery & Prevention Actions
-            * **Enhanced Account Lifecycle Management (ACLCM):** Implement automated workflow policies to auto-suspend profiles after 30 days of complete inactivity.
-            * **Strengthened Privileged Access Management (PAM):** Deploy Just-In-Time (JIT) administrative elevations coupled with strict session logging pipelines.
-            * **Improved Intrusion Detection:** Integrate adaptive authentication rules to challenge anomalies with step-up out-of-band factor tracking.
-            """)
+        # Build the dynamic report content string so we can display AND download it
+        report_content = f"""# Cybersecurity Incident Report: High-Risk IAM User Profile Analysis
+
+**Date:** July 12, 2026 | **Subject:** Analysis of High-Risk User Profile "{user_data['username']}"
+
+---
+
+### 1. 📋 EXECUTIVE THREAT SUMMARY
+The user profile for "{user_data['username']}" represents an immediate and critical security incident with a {user_data['risk_score']}/100 risk score, indicating an extreme compromise potential. The confluence of access volatility signifies an imminent threat to the organization's information assets.
+
+**Key Threat Indicators:**
+* **Privileged Admin Account:** {"Yes - The account possesses elevated permissions, granting extensive access to core database architectures." if user_data['is_privileged_user'] else "No - Standard non-administrative client parameters apply."}
+* **Dormancy Profile:** An inactive account for {user_data['days_inactive']} days without credential rotation represents an unmonitored attack vector.
+* **Authentication Anomalies:** {user_data['failed_logins']} failed login attempts confirm active access volatility.
+* **Calculated Risk Index:** Explicit {user_data['risk_score']}/100 score mandates immediate Blue-Team intervention tasks.
+
+**Corporate "Blast Radius":**
+A successful compromise of "{user_data['username']}"'s credentials would lead to an expanded threat surface including complete system takeover risks, massive data breaches, and heavy regulatory compliance financial penalties under GDPR, ISO 27001, and SOC 2 frameworks.
+
+---
+
+### 2. ⚖️ REGULATORY NON-COMPLIANCE ANALYSIS
+The current footprint of the user profile demonstrates deviations from primary international compliance standards:
+
+#### ISO/IEC 27001:2022 Framework
+* **Control A.9.2.3 (Privileged Access Rights):** The existence of a dormant, high-risk account actively under threat patterns violates lifecycle restriction parameters.
+* **Control A.9.4.2 (Secure Log-on Procedures):** Monitoring utilities failed to actively alert on brute force indicators prior to threshold exhaustion.
+
+#### SOC 2 Type II - Trust Services Criteria (Security)
+* **CC6.1 - Access Control:** Logical security measures failed to proactively restrict, disable, or protect the dormant profile.
+* **CC4.1 - Monitoring Activities:** Extended system dormancy spikes show an active breakdown in automated baseline alarming.
+
+#### GDPR (General Data Protection Regulation)
+* **Article 32 - Security of Processing:** Inability to lock vulnerable access paths violates processing integrity mandates.
+* **Article 5(1)(c) - Data Minimisation:** Maintaining extensive account permissions during prolonged inactivity violates structural processing principles.
+
+---
+
+### 3. 🛡️ PLAYBOOK MITIGATION ACTIONS
+
+#### Immediate Containment Actions (Critical Priority)
+1. **Account Lockout/Disablement:** Suspend the user account across all active directory servers and cloud IAM platforms immediately.
+2. **Incident Alert Notification:** Route a priority response notice to the Security Operations Center (SOC) management queue.
+3. **Log Analysis & Forensic Review:** Extract past authentication logs to track potential lateral movement or persistent changes.
+4. **Source IP Perimeter Blocking:** Perimeter firewall ban applied to offending authorization source nodes.
+"""
+
+        st.success("Audit Complete!")
+        st.markdown("### 📄 AI-Generated Legal & Security Intelligence Report")
+        st.info(report_content)
+        
+        # --- THE DOWNLOAD BUTTON FEATURE ---
+        st.markdown("### 💾 Export Compliance Artifacts")
+        st.download_button(
+            label="📥 Download Security Audit Report (.md)",
+            data=report_content,
+            file_name=f"AccessGuard_Audit_{user_data['username']}.md",
+            mime="text/markdown",
+            key=f"download_btn_{user_data['username']}"
+        )
