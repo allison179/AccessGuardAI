@@ -209,27 +209,4 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             ### 🔍 Behavior Metrics & Threat Indicators
             * **Failed Authentication Attempts:** {user_data['failed_logins']} recorded spikes within the current auditing cycle.
             * **Account Dormancy Flag:** {user_data['days_inactive']} days of system inactivity without rotational credential validation.
-            """)# Clean, network-independent local audit engine execution
-        st.success("Audit Engine Initialized (Local Threat Framework Active)")
-        st.markdown("#### 📄 AI Threat Report (Security & Compliance Analytics)")
-        
-        # Dynamically render high-fidelity threat analytics matching the user's data structure
-        st.warning(f"""
-        ### 🚨 Executive Summary
-        User Account **{user_data['username']}** (ID: {user_data['user_id']}) is currently flagged under **{user_data['risk_tier']} Risk** with a calculated vulnerability matrix score of **{user_data['risk_score']}/100**.
-        
-        ### ⚖️ Regulatory & Framework Impacts
-        * **Identified Deficiencies:** {user_data['regulatory_impact']}
-        * **Non-Compliance Vectors:** SOC 2 Type II (CC6.1, CC6.3), ISO 27001:2022 (A.9.2.3, A.9.4.2), and NIST SP 800-53 AC-2.
-        
-        ### 🔍 Behavior Metrics & Threat Indicators
-        * **Failed Authentication Attempts:** {user_data['failed_logins']} recorded spikes within the current auditing cycle.
-        * **Account Dormancy Flag:** {user_data['days_inactive']} days of system inactivity without rotational credential validation.
-        * **Brute Force Corroboration:** {"⚠️ CRITICAL: Rapid-fire authentication failure pattern detected." if user_data['brute_force_trigger'] else "Passed baseline rate-limiting checks."}
-        * **Geographic Anomaly (Impossible Travel):** {"⚠️ CRITICAL: Multi-region access detected inside standard session timeouts." if user_data['impossible_travel'] else "Passed routing telemetry checks."}
-        
-        ### 🛡️ Prescribed Mitigation Runbook
-        1. **Enforce Step-Up Authentication:** Terminate active identity sessions and mandate hardware-token MFA enrollment immediately.
-        2. **IAM Policy Restructuring:** Revoke privileged architecture roles until an explicit security review is completed.
-        3. **Credential Invalidation:** Trigger an automated account lock and force a complete cryptographic password reset.
-        """)
+            """)
