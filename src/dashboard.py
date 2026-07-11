@@ -5,7 +5,6 @@ import streamlit as st
 import google  # Modern 2026 SDK
 
 # Initialize environment variables from .env
-load_dotenv()
 
 # Set page layout to wide
 st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
