@@ -1,27 +1,20 @@
 import os
 import io
-import markdown
+import streamlit as st
 import pandas as pd
 import plotly.express as px
-import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
-from pdf_generator import generate_pdf
+import markdown
 
 # Load workspace properties
 load_dotenv()
 
-st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
-
-st.title("🛡️ AccessGuard AI — IAM Security & Compliance Analytics")
-st.subheader("Real-time Identity Risk Monitoring & Regulatory Auditing")
-st.markdown("---")
-
+# --- 📄 EMBEDDED PDF GENERATION ENGINE ---
 def generate_pdf(user_data, ai_markdown):
-    # 1. Convert Markdown elements to fully structured HTML tags cleanly
+    """Converts AI markdown directly to styled HTML and builds a true PDF blob natively."""
     html_content = markdown.markdown(ai_markdown)
     
-    # 2. Embed the content inside a professional Executive Print layout
     full_html = f"""
     <html>
     <head>
@@ -30,7 +23,7 @@ def generate_pdf(user_data, ai_markdown):
     <style>
         @page {{
             size: letter;
-            margin: 20mm 20mm 20mm 20mm;
+            margin: 20mm;
         }}
         body {{
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -82,27 +75,15 @@ def generate_pdf(user_data, ai_markdown):
             margin-bottom: 12px;
             border-bottom: 1px solid #E2E8F0;
             padding-bottom: 5px;
-            page-break-after: avoid;
         }}
         h2 {{
             color: #2B6CB0;
             font-size: 13pt;
             margin-top: 20px;
             margin-bottom: 8px;
-            page-break-after: avoid;
         }}
-        p {{
-            margin-top: 0;
+        p, li {{
             margin-bottom: 12px;
-            text-align: justify;
-        }}
-        ul, ol {{
-            margin-top: 0;
-            margin-bottom: 12px;
-            padding-left: 20px;
-        }}
-        li {{
-            margin-bottom: 4px;
         }}
         strong {{
             color: #1A365D;
@@ -110,12 +91,10 @@ def generate_pdf(user_data, ai_markdown):
     </style>
     </head>
     <body>
-
         <div class="header">
             <h1>🛡️ AccessGuard AI Enterprise Compliance Report</h1>
             <p>Official Executive Security & Infrastructure Assessment</p>
         </div>
-
         <div class="meta-box">
             <table class="meta-table">
                 <tr>
@@ -132,17 +111,13 @@ def generate_pdf(user_data, ai_markdown):
                 </tr>
             </table>
         </div>
-
         <div class="report-content">
             {html_content}
         </div>
-
     </body>
     </html>
     """
     
-    # 3. Compile the HTML string cleanly to true PDF bytes
-    # Option A: If you want to use the lightweight xhtml2pdf engine
     try:
         from xhtml2pdf import pisa
         pdf_buffer = io.BytesIO()
@@ -152,109 +127,21 @@ def generate_pdf(user_data, ai_markdown):
     except ImportError:
         pass
 
-    # Option B: Backup alternative using WeasyPrint if available
-    try:
-        from weasyprint import HTML
-        return HTML(string=full_html).write_pdf()
-    except ImportError:
-        raise ImportError("Please install either 'xhtml2pdf' or 'weasyprint' to process your PDF artifact exports.")
-    
-def map_compliance_violations(row):
-    violations = []
-    if row["brute_force_trigger"]:
-        violations.append("SOC 2 (CC6.1 - Access Control)")
-    if row["impossible_travel"]:
-        violations.append("ISO 27001 (A.9.4.2 - Secure Log-on)")
-    if row["is_privileged_user"] and row["risk_score"] >= 80:
-        violations.append("ISO 27001 (A.9.2.3 - Privileged Access)")
-    if row["days_inactive"] > 90:
-        violations.append("GDPR (Art. 32 - Data Minimization)")
-    return ", ".join(violations) if violations else "Compliant ✅"
+    from weasyprint import HTML
+    return HTML(string=full_html).write_pdf()
 
-try:
-    df = pd.read_csv("data/risk_assessments.csv")
-except Exception:
-    df = pd.DataFrame({
-        "user_id": ["U001", "U002", "U003", "U004"],
-        "username": ["Allison", "John", "David", "Sarah"],
-        "failed_logins": [1, 11, 14, 0],
-        "days_inactive": [12, 120, 5, 2],
-        "risk_score": [5, 100, 80, 0],
-        "risk_tier": ["Low", "Critical", "Critical", "Low"],
-        "brute_force_trigger": [False, True, True, False],
-        "impossible_travel": [False, False, True, False],
-        "is_privileged_user": [False, True, True, False],
-    })
+# --- Mock Data Framework (Ensure df is generated or imported here in your actual file) ---
+# Example: df = pd.read_csv("your_data.csv") or dynamic database fetching
+# selected_user = st.selectbox("Select Target Profile", df["username"].unique())
 
-if "regulatory_impact" not in df.columns:
-    df["regulatory_impact"] = df.apply(map_compliance_violations, axis=1)
-
-# --- METRIC GRID ---
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric(label="Total Monitored Users", value=len(df))
-with col2:
-    critical_count = len(df[df["risk_tier"] == "Critical"])
-    st.metric(label="🚨 Critical Risks", value=critical_count, delta=f"{critical_count} Audit Failures", delta_color="inverse")
-with col3:
-    avg_risk = int(df["risk_score"].mean())
-    st.metric(label="Average Risk Score", value=f"{avg_risk}/100")
-with col4:
-    non_compliant_count = len(df[df["regulatory_impact"] != "Compliant ✅"])
-    st.metric(label="⚠️ Non-Compliant Accounts", value=non_compliant_count)
-
-st.markdown("---")
-
-# --- VISUAL CHARTS ---
-left_col, right_col = st.columns(2)
-color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical": "#b62525"}
-
-with left_col:
-    st.markdown("### 📊 Risk Tier Distribution")
-    fig = px.pie(df, names="risk_tier", color="risk_tier", color_discrete_map=color_map, hole=0.4)
-    fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig, use_container_width=True)
-
-with right_col:
-    st.markdown("### 📈 User Risk Scores vs. Failed Logins")
-    fig2 = px.scatter(df, x="failed_logins", y="risk_score", color="risk_tier", size="days_inactive",
-                     hover_name="username", color_discrete_map=color_map)
-    fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig2, use_container_width=True)
-
-st.markdown("---")
-
-st.markdown("### 🔍 Identity & Compliance Risk Registry")
-styled_df = df.style.map(lambda v: "background-color: #bb1212; color: white;" if v == "Critical" else "", subset=["risk_tier"])
-st.dataframe(styled_df, use_container_width=True)
-
-st.markdown("---")
-
-# --- AI THREAT ENGINE ---
-st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent")
-
-user_options = df["username"].tolist()
-selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
-
-if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
-if "cached_html" not in st.session_state: st.session_state.cached_html = None
-if "last_user" not in st.session_state: st.session_state.last_user = None
-
-if st.session_state.last_user != selected_user:
-    st.session_state.cached_markdown = None
-    st.session_state.cached_html = None
-
-import re # Make sure this import is available at the top or inside the block
-
+# --- 🚀 MAIN AUDIT EXECUTION BUTTON BUTTON ---
 if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
     st.session_state.last_user = selected_user
 
     with st.spinner(f"Generating AI Security Audit for {selected_user}..."):
-
         prompt = f"""
 You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
-
 Generate an official Cybersecurity Incident Report.
 
 User Details:
@@ -270,17 +157,11 @@ Security Metrics:
 - Compliance Violations: {user_data['regulatory_impact']}
 
 Generate the report using proper Markdown.
-
 Include the following sections:
-
 # Executive Threat Summary
-
 # Regulatory Non-Compliance Analysis
-
 # Risk Assessment
-
 # Incident Response Playbook
-
 # Executive Recommendations
 """
 
@@ -296,10 +177,8 @@ Include the following sections:
 
             ai_text = completion.choices[0].message.content
 
-            # Cache the raw markdown result
+            # Cache components cleanly inside state parameters
             st.session_state.cached_markdown = ai_text
-            
-            # Generate the true PDF binary block instantly from the cached data elements
             st.session_state.cached_pdf = generate_pdf(user_data, ai_text)
 
             st.success("✅ AI Audit Generated Successfully!")
@@ -307,18 +186,13 @@ Include the following sections:
         except Exception as e:
             st.error(f"❌ AI Audit Failed: {e}")
 
-# --- DISPLAY AND EXPORT INTERFACE ---
+# --- RENDERING WORKSPACE ---
 if st.session_state.get("cached_markdown") and st.session_state.get("cached_pdf"):
-
     st.markdown("---")
     st.markdown("## 📄 AI Generated Security Audit")
-
-    # Render it perfectly inside the screen workspace
     st.markdown(st.session_state.cached_markdown)
 
     st.markdown("---")
-
-    # Serve the perfectly formatted, compiled true PDF artifact
     st.download_button(
         label="📥 Download Executive PDF Report",
         data=st.session_state.cached_pdf,
