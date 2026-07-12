@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 # Load workspace properties
 load_dotenv()
@@ -105,130 +105,152 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     user_data = df[df["username"] == selected_user].iloc[0]
     st.session_state.last_user = selected_user
 
-    with st.spinner(f"Contacting live Gemini models for {selected_user}..."):
+    with st.spinner(f"Generating AI Security Audit for {selected_user}..."):
 
         prompt = f"""
-        You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
+You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
 
-        Generate an official Cybersecurity Incident Report for user profile: "{user_data['username']}".
+Generate an official Cybersecurity Incident Report.
 
-        Use strict Markdown formatting (#, ##, **, bullet points).
+User Details:
+- Username: {user_data['username']}
+- User ID: {user_data['user_id']}
 
-        Target Identity Details:
-        - Username: {user_data['username']}
-        - User ID: {user_data['user_id']}
+Security Metrics:
+- Risk Score: {user_data['risk_score']}/100
+- Risk Tier: {user_data['risk_tier']}
+- Failed Logins: {user_data['failed_logins']}
+- Days Inactive: {user_data['days_inactive']}
+- Privileged User: {user_data['is_privileged_user']}
+- Compliance Violations: {user_data['regulatory_impact']}
 
-        Security Telemetry:
-        - Risk Score: {user_data['risk_score']}/100
-        - Risk Tier: {user_data['risk_tier']}
-        - Failed Logins: {user_data['failed_logins']}
-        - Days Inactive: {user_data['days_inactive']}
-        - Privileged User: {user_data['is_privileged_user']}
-        - Compliance Violations: {user_data['regulatory_impact']}
+Generate the report using proper Markdown.
 
-        Generate the report with the following sections:
+Include the following sections:
 
-        # Executive Threat Summary
+# Executive Threat Summary
 
-        # Regulatory Non-Compliance Analysis
-        Explain any GDPR, ISO 27001 and SOC 2 issues.
+# Regulatory Non-Compliance Analysis
 
-        # Risk Assessment
-        Provide a severity rating and explain why.
+# Risk Assessment
 
-        # Incident Response Playbook
-        List actionable mitigation steps.
+# Incident Response Playbook
 
-        # Executive Recommendations
-        Provide recommendations for the security team.
-        """
+# Executive Recommendations
+"""
 
-    try:
-                    # Debug (remove later if you want)
-                    st.write("Key starts with:", st.secrets["GEMINI_API_KEY"][:8])
+        try:
+            client = Groq(
+                api_key=st.secrets["GROQ_API_KEY"]
+            )
 
-                    client = genai.Client(
-                        api_key=st.secrets["GEMINI_API_KEY"]
-                    )
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.3,
+                max_tokens=1500,
+            )
 
-                    response = client.models.generate_content(
-                        model="gemini-2.5-flash",
-                        contents=prompt
-                    )
+            ai_text = completion.choices[0].message.content
 
-                    ai_text = response.text
+            st.session_state.cached_markdown = ai_text
 
-                    st.session_state.cached_markdown = ai_text
+            formatted_html_body = (
+                ai_text.replace("### ", "<h3>")
+                .replace("## ", "<h2>")
+                .replace("# ", "<h1>")
+                .replace("**", "<strong>")
+                .replace("\n", "<br/>")
+            )
 
-                    formatted_html_body = (
-                        ai_text.replace("### ", "<h3>")
-                            .replace("## ", "<h2>")
-                            .replace("# ", "<h1>")
-                            .replace("**", "<strong>")
-                            .replace("\n", "<br/>")
-                    )
+            st.session_state.cached_html = f"""
+<html>
+<head>
+<title>AccessGuard Executive AI Audit - {user_data['username']}</title>
 
-                    st.session_state.cached_html = f"""
-        <html>
-        <head>
-        <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
+<style>
+body {{
+    font-family: Arial, sans-serif;
+    padding:40px;
+    max-width:900px;
+    margin:auto;
+    color:#222;
+    line-height:1.7;
+}}
 
-        <style>
-        body {{
-            font-family: Arial, sans-serif;
-            padding:40px;
-            max-width:900px;
-            margin:auto;
-            color:#222;
-            line-height:1.6;
-        }}
+h1 {{
+    color:#002244;
+    border-bottom:2px solid #003366;
+    padding-bottom:8px;
+}}
 
-        h1 {{
-            color:#002244;
-            border-bottom:2px solid #003366;
-            padding-bottom:8px;
-        }}
+h2 {{
+    color:#004488;
+    margin-top:25px;
+    border-bottom:1px solid #ddd;
+    padding-bottom:4px;
+}}
 
-        h2 {{
-            color:#004488;
-            margin-top:25px;
-            border-bottom:1px solid #ddd;
-            padding-bottom:4px;
-        }}
+h3 {{
+    color:#333;
+}}
 
-        h3 {{
-            color:#333;
-        }}
+strong {{
+    font-weight:bold;
+}}
+</style>
 
-        strong {{
-            font-weight:bold;
-        }}
-        </style>
+</head>
 
-        </head>
+<body>
 
-        <body>
+<div style="text-align:center;margin-bottom:30px;">
+<h1 style="border:none;">
+🛡️ AccessGuard AI Enterprise Compliance Report
+</h1>
 
-        <div style="text-align:center; margin-bottom:30px;">
-        <h1 style="border:none;">🛡️ AccessGuard AI Enterprise Compliance Report</h1>
-        <p><i>Official AI Generated Security & Compliance Assessment</i></p>
-        </div>
+<p>
+<i>AI Generated Executive Security Assessment</i>
+</p>
 
-        <hr>
+</div>
 
-        {formatted_html_body}
+<hr>
 
-        <script>
-        window.onload = function(){{
-            window.print();
-        }};
-        </script>
+{formatted_html_body}
 
-        </body>
-        </html>
-        """
+<script>
+window.onload = function() {{
+    window.print();
+}};
+</script>
 
-                    st.success("✅ AI Audit Generated Successfully!")
+</body>
+</html>
+"""
 
-    except Exception as e:
-                    st.exception(e)
+            st.success("✅ AI Audit Generated Successfully!")
+
+        except Exception as e:
+            st.error(f"❌ AI Audit Failed: {e}")
+
+if st.session_state.cached_markdown and st.session_state.cached_html:
+
+    st.markdown("---")
+    st.markdown("## 📄 AI Generated Security Audit")
+
+    st.markdown(st.session_state.cached_markdown)
+
+    st.markdown("---")
+
+    st.download_button(
+        label="📥 Download Executive Security Report",
+        data=st.session_state.cached_html,
+        file_name=f"AccessGuard_AI_Audit_{st.session_state.last_user}.html",
+        mime="text/html"
+    )
