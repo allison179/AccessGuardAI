@@ -1,4 +1,6 @@
 import os
+import io
+import markdown
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -15,6 +17,148 @@ st.title("🛡️ AccessGuard AI — IAM Security & Compliance Analytics")
 st.subheader("Real-time Identity Risk Monitoring & Regulatory Auditing")
 st.markdown("---")
 
+def generate_pdf(user_data, ai_markdown):
+    # 1. Convert Markdown elements to fully structured HTML tags cleanly
+    html_content = markdown.markdown(ai_markdown)
+    
+    # 2. Embed the content inside a professional Executive Print layout
+    full_html = f"""
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <title>AccessGuard Executive AI Audit - {user_data['username']}</title>
+    <style>
+        @page {{
+            size: letter;
+            margin: 20mm 20mm 20mm 20mm;
+        }}
+        body {{
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #2D3748;
+            line-height: 1.6;
+            font-size: 11pt;
+        }}
+        .header {{
+            text-align: center;
+            border-bottom: 3px solid #1A365D;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }}
+        .header h1 {{
+            color: #1A365D;
+            margin: 0;
+            font-size: 24pt;
+            font-weight: 700;
+        }}
+        .header p {{
+            color: #718096;
+            margin: 5px 0 0 0;
+            font-style: italic;
+            font-size: 10pt;
+        }}
+        .meta-box {{
+            background-color: #F7FAFC;
+            border-left: 4px solid #3182CE;
+            padding: 15px;
+            margin-bottom: 30px;
+        }}
+        .meta-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+        .meta-table td {{
+            padding: 4px 8px;
+            font-size: 10pt;
+        }}
+        .meta-label {{
+            font-weight: bold;
+            color: #2B6CB0;
+            width: 20%;
+        }}
+        h1 {{
+            color: #1A365D;
+            font-size: 16pt;
+            margin-top: 30px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 5px;
+            page-break-after: avoid;
+        }}
+        h2 {{
+            color: #2B6CB0;
+            font-size: 13pt;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            page-break-after: avoid;
+        }}
+        p {{
+            margin-top: 0;
+            margin-bottom: 12px;
+            text-align: justify;
+        }}
+        ul, ol {{
+            margin-top: 0;
+            margin-bottom: 12px;
+            padding-left: 20px;
+        }}
+        li {{
+            margin-bottom: 4px;
+        }}
+        strong {{
+            color: #1A365D;
+        }}
+    </style>
+    </head>
+    <body>
+
+        <div class="header">
+            <h1>🛡️ AccessGuard AI Enterprise Compliance Report</h1>
+            <p>Official Executive Security & Infrastructure Assessment</p>
+        </div>
+
+        <div class="meta-box">
+            <table class="meta-table">
+                <tr>
+                    <td class="meta-label">Subject Identity:</td>
+                    <td>{user_data['username']} ({user_data['user_id']})</td>
+                    <td class="meta-label">Risk Profile:</td>
+                    <td><strong>{user_data['risk_tier']}</strong> ({user_data['risk_score']}/100)</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Telemetry:</td>
+                    <td>{user_data['failed_logins']} failed logins | {user_data['days_inactive']} days inactive</td>
+                    <td class="meta-label">Compliance Status:</td>
+                    <td>{user_data['regulatory_impact']}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="report-content">
+            {html_content}
+        </div>
+
+    </body>
+    </html>
+    """
+    
+    # 3. Compile the HTML string cleanly to true PDF bytes
+    # Option A: If you want to use the lightweight xhtml2pdf engine
+    try:
+        from xhtml2pdf import pisa
+        pdf_buffer = io.BytesIO()
+        pisa_status = pisa.CreatePDF(full_html, dest=pdf_buffer)
+        if not pisa_status.err:
+            return pdf_buffer.getvalue()
+    except ImportError:
+        pass
+
+    # Option B: Backup alternative using WeasyPrint if available
+    try:
+        from weasyprint import HTML
+        return HTML(string=full_html).write_pdf()
+    except ImportError:
+        raise ImportError("Please install either 'xhtml2pdf' or 'weasyprint' to process your PDF artifact exports.")
+    
 def map_compliance_violations(row):
     violations = []
     if row["brute_force_trigger"]:
@@ -141,124 +285,43 @@ Include the following sections:
 """
 
         try:
-            client = Groq(
-                api_key=st.secrets["GROQ_API_KEY"]
-            )
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
+                messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
                 max_tokens=1500,
             )
 
             ai_text = completion.choices[0].message.content
 
+            # Cache the raw markdown result
             st.session_state.cached_markdown = ai_text
-
-            formatted_html_body = (
-                ai_text.replace("### ", "<h3>")
-                .replace("## ", "<h2>")
-                .replace("# ", "<h1>")
-                .replace("**", "<strong>")
-                .replace("\n", "<br/>")
-            )
-
-            st.session_state.cached_html = f"""
-<html>
-<head>
-<title>AccessGuard Executive AI Audit - {user_data['username']}</title>
-
-<style>
-body {{
-    font-family: Arial, sans-serif;
-    padding:40px;
-    max-width:900px;
-    margin:auto;
-    color:#222;
-    line-height:1.7;
-}}
-
-h1 {{
-    color:#002244;
-    border-bottom:2px solid #003366;
-    padding-bottom:8px;
-}}
-
-h2 {{
-    color:#004488;
-    margin-top:25px;
-    border-bottom:1px solid #ddd;
-    padding-bottom:4px;
-}}
-
-h3 {{
-    color:#333;
-}}
-
-strong {{
-    font-weight:bold;
-}}
-</style>
-
-</head>
-
-<body>
-
-<div style="text-align:center;margin-bottom:30px;">
-<h1 style="border:none;">
-🛡️ AccessGuard AI Enterprise Compliance Report
-</h1>
-
-<p>
-<i>AI Generated Executive Security Assessment</i>
-</p>
-
-</div>
-
-<hr>
-
-{formatted_html_body}
-
-<script>
-window.onload = function() {{
-    window.print();
-}};
-</script>
-
-</body>
-</html>
-"""
+            
+            # Generate the true PDF binary block instantly from the cached data elements
+            st.session_state.cached_pdf = generate_pdf(user_data, ai_text)
 
             st.success("✅ AI Audit Generated Successfully!")
 
         except Exception as e:
             st.error(f"❌ AI Audit Failed: {e}")
 
-if st.session_state.cached_markdown and st.session_state.cached_html:
+# --- DISPLAY AND EXPORT INTERFACE ---
+if st.session_state.get("cached_markdown") and st.session_state.get("cached_pdf"):
 
     st.markdown("---")
     st.markdown("## 📄 AI Generated Security Audit")
 
+    # Render it perfectly inside the screen workspace
     st.markdown(st.session_state.cached_markdown)
 
     st.markdown("---")
 
-    pdf_bytes = generate_pdf(
-    user_data,
-    ai_text
-    )
-    
-    pdf = generate_pdf(user_data, ai_text)
-
+    # Serve the perfectly formatted, compiled true PDF artifact
     st.download_button(
-    "📥 Download Executive PDF",
-    data=pdf,
-    file_name=f"AccessGuard_Report_{user_data['username']}.pdf",
-    mime="application/pdf"
+        label="📥 Download Executive PDF Report",
+        data=st.session_state.cached_pdf,
+        file_name=f"AccessGuard_Report_{st.session_state.last_user}.pdf",
+        mime="application/pdf"
     )
