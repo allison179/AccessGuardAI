@@ -91,7 +91,7 @@ def generate_pdf(user_data, ai_markdown):
             # FIX: Use explicit 186mm printable text field width instead of dynamic 0
             pdf.multi_cell(186, 6, line.strip())
             pdf.ln(2)
-            
+
 # Go to the end of the generate_pdf function and update the return statement:
     return bytes(pdf.output())
 
@@ -144,6 +144,7 @@ with col4:
 st.markdown("---")
 
 # 6. RENDERING ANALYTICS CHARTS GRID
+# 6. RENDERING ANALYTICS CHARTS GRID
 left_col, right_col = st.columns(2)
 color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical": "#b62525"}
 
@@ -151,21 +152,24 @@ with left_col:
     st.markdown("### 📊 Risk Tier Distribution")
     fig = px.pie(df, names="risk_tier", color="risk_tier", color_discrete_map=color_map, hole=0.4)
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig, use_container_width=True)
+    # FIX: Changed use_container_width=True to width="stretch"
+    st.plotly_chart(fig, width="stretch")
 
 with right_col:
     st.markdown("### 📈 User Risk Scores vs. Failed Logins")
     fig2 = px.scatter(df, x="failed_logins", y="risk_score", color="risk_tier", size="days_inactive",
                       hover_name="username", color_discrete_map=color_map)
     fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig2, use_container_width=True)
+    # FIX: Changed use_container_width=True to width="stretch"
+    st.plotly_chart(fig2, width="stretch")
 
 st.markdown("---")
 
 # 7. RENDERING RISK DATA REGISTRY TABLE
 st.markdown("### 🔍 Identity & Compliance Risk Registry")
 styled_df = df.style.map(lambda v: "background-color: #bb1212; color: white;" if v == "Critical" else "", subset=["risk_tier"])
-st.dataframe(styled_df, use_container_width=True)
+# FIX: Changed use_container_width=True to width="stretch"
+st.dataframe(styled_df, width="stretch")
 
 st.markdown("---")
 
