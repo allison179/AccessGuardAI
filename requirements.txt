@@ -3,5 +3,5 @@ pandas
 plotly
 groq
 markdown
-xhtml2pdf
 python-dotenv
+fpdf2
