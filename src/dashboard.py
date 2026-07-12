@@ -200,7 +200,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
 
     with st.spinner(f"Generating AI Security Audit for {selected_user}..."):
         # Update your Groq system context string inside the executive audit generator:
-    prompt = (
+        prompt = (
         "You are an expert Cybersecurity Incident Responder and Global Compliance Auditor. "
         "Analyze the provided user telemetry JSON data payload. You must explicitly evaluate "
         "the account anomalies against SOC 2, ISO 27001, GDPR, and India's Digital Personal "
