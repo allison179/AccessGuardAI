@@ -1,7 +1,7 @@
 streamlit
 pandas
 plotly
-google-genai
-python-dotenv
 groq
 reportlab
+markdown
+xhtml2pdf
