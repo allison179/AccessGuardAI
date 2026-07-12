@@ -227,7 +227,7 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             
             st.rerun()
 
-        except Exception as e:
+    except Exception as e:
             st.error(f"❌ AI Audit Failed: {e}")
 
 # 9. OUTPUT & PDF DOWNLOAD PRESENTATION WORKSPACE
