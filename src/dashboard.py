@@ -130,8 +130,8 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
             # Initialize without arguments so it implicitly pulls from the environment variable natively
             st.write("Key starts with:", st.secrets["GEMINI_API_KEY"][:8])
             client = genai.Client(
-                 api_key=st.secrets["GEMINI_API_KEY"]
-                    )
+                    api_key=st.secrets["GEMINI_API_KEY"]
+                        )
             
             ai_text = response.text
             st.session_state.cached_markdown = ai_text
