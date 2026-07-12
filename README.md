@@ -49,6 +49,9 @@ This section is the brain of the platform. When a security analyst selects a fla
 <img width="2059" height="1043" alt="image" src="https://github.com/user-attachments/assets/7d11f0ed-4615-4210-9115-798e6e3a3c90" />
 <img width="2081" height="925" alt="image" src="https://github.com/user-attachments/assets/df728cde-d41d-443d-b9f0-8f1fda90ea98" />
 
+**PDF Generation**
+<img width="605" height="559" alt="image" src="https://github.com/user-attachments/assets/f17cdcc8-ae91-411c-ab89-27517f808930" />
+
 
 Workflow:
 <img width="3514" height="2766" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/d7d8e02b-0f56-45e6-a964-c92f36579aae" />
