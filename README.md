@@ -44,7 +44,7 @@ Identity and Compliance risk registry<img width="2046" height="383" alt="image" 
 This section is the brain of the platform. When a security analyst selects a flagged user, the Gemini AI engine acts as an automated incident responder and compliance auditor by delivering a structured report with three items:
 
 * **Executive Threat Summary:** It analyzes raw behavioral anomalies (like impossible travel or high failed logins) to calculate the account's immediate "blast radius" and threat level.
-* **Regulatory Non-Compliance Audit:** It identifies the exact clauses and global IT frameworks (such as ISO 27001 access control gaps, SOC 2 monitoring failures, or GDPR data security principles) being broken by that user's profile.
+* **Regulatory Non-Compliance Audit:** It identifies the exact clauses and global IT frameworks (such as ISO 27001 access control gaps, SOC 2 monitoring failures, or DPDP and GDPR data security principles) being broken by that user's profile.
 * **Playbook Mitigation Actions:** It generates an instant, step-by-step technical containment strategy—instructing the security team precisely how to isolate the account, revoke active OAuth tokens, and reset multi-factor authentication (MFA) to bring the user back into compliance.
 <img width="2026" height="1022" alt="image" src="https://github.com/user-attachments/assets/10d47feb-769b-4e8d-8745-3c6098ce1f31" />
 <img width="1967" height="991" alt="image" src="https://github.com/user-attachments/assets/f099fca5-7c51-429e-bb79-ddf8c36c37e4" />
