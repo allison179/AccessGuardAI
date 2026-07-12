@@ -4,6 +4,7 @@ import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
+from pdf_generator import generate_pdf
 
 # Load workspace properties
 load_dotenv()
@@ -248,10 +249,11 @@ if st.session_state.cached_markdown and st.session_state.cached_html:
 
     st.markdown("---")
 
-    pdf_bytes = generate_security_report(
-    user_data=user_data,
-    ai_report=ai_text
+    pdf_bytes = generate_pdf(
+    user_data,
+    ai_text
     )
+    
     pdf = generate_pdf(user_data, ai_text)
 
     st.download_button(

@@ -6,7 +6,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
-
+from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -796,3 +796,41 @@ def build_summary(story,user_data):
 
     )
 
+def generate_pdf(user_data, ai_text):
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=60,
+        bottomMargin=50,
+    )
+
+    story = []
+
+    build_cover(story)
+
+    build_dashboard(story, user_data)
+
+    build_compliance_table(story, user_data)
+
+    build_metrics(story, user_data)
+
+    build_ai_report(story, ai_text)
+
+    build_recommendations(story, user_data)
+
+    build_summary(story, user_data)
+
+    doc.build(
+        story,
+        onFirstPage=header,
+        onLaterPages=header,
+    )
+
+    buffer.seek(0)
+
+    return buffer.getvalue()
