@@ -21,10 +21,18 @@ st.subheader("Real-time Identity Risk Monitoring & Regulatory Auditing")
 st.markdown("---")
 
 # 2. Pure Python Crash-Proof PDF Generator Engine
+# 2. Pure Python Crash-Proof PDF Generator Engine (Unicode Safe)
 def generate_pdf(user_data, ai_markdown):
-    """Compiles a pure Python PDF layout via fpdf2, avoiding cloud segmentation faults entirely."""
-    # Strip emojis entirely to safeguard string encoding bounds
-    clean_text = re.sub(r'[\U00010000-\U0010ffff]', '', ai_markdown)
+    """Compiles a pure Python PDF layout via fpdf2, cleansing all unsupported characters."""
+    
+    # 1. Cleanse the AI text: strip out non-ASCII/emojis so Helvetica doesn't crash
+    clean_text = re.sub(r'[^\x00-\x7F]+', '', ai_markdown)
+    
+    # 2. Cleanse user metadata strings to remove status emojis like "✅" or "⚠️"
+    clean_username = re.sub(r'[^\x00-\x7F]+', '', str(user_data['username'])).strip()
+    clean_uid = re.sub(r'[^\x00-\x7F]+', '', str(user_data['user_id'])).strip()
+    clean_tier = re.sub(r'[^\x00-\x7F]+', '', str(user_data['risk_tier'])).strip()
+    clean_impact = re.sub(r'[^\x00-\x7F]+', '', str(user_data['regulatory_impact'])).strip()
     
     pdf = FPDF(orientation="P", unit="mm", format="letter")
     pdf.set_auto_page_break(auto=True, margin=20)
@@ -48,15 +56,15 @@ def generate_pdf(user_data, ai_markdown):
     
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_xy(18, 44)
-    pdf.cell(40, 6, f"Subject Identity: {user_data['username']} ({user_data['user_id']})")
+    pdf.cell(40, 6, f"Subject Identity: {clean_username} ({clean_uid})")
     pdf.set_xy(120, 44)
-    pdf.cell(40, 6, f"Risk Profile: {user_data['risk_tier']} ({user_data['risk_score']}/100)")
+    pdf.cell(40, 6, f"Risk Profile: {clean_tier} ({user_data['risk_score']}/100)")
     
     pdf.set_xy(18, 52)
     pdf.cell(40, 6, f"Telemetry: {user_data['failed_logins']} failed logins | {user_data['days_inactive']} days inactive")
     pdf.set_xy(120, 52)
     pdf.set_font("Helvetica", "", 9)
-    pdf.cell(40, 6, f"Compliance: {user_data['regulatory_impact'][:40]}")
+    pdf.cell(40, 6, f"Compliance: {clean_impact[:45]}")
     
     pdf.set_xy(15, 74)
     
