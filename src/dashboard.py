@@ -96,18 +96,24 @@ def generate_pdf(user_data, ai_markdown):
     return bytes(pdf.output())
 
 # 3. Compliance Rule Processor Engine
-def map_compliance_violations(row):
+# Inside your data loading/processing logic loop:
+for idx, row in df.iterrows():
     violations = []
-    if row["brute_force_trigger"]:
-        violations.append("SOC 2 (CC6.1 - Access Control)")
-    if row["impossible_travel"]:
-        violations.append("ISO 27001 (A.9.4.2 - Secure Log-on)")
-    if row["is_privileged_user"] and row["risk_score"] >= 80:
-        violations.append("ISO 27001 (A.9.2.3 - Privileged Access)")
-    if row["days_inactive"] > 90:
-        violations.append("GDPR (Art. 32 - Data Minimization)")
-    return ", ".join(violations) if violations else "Compliant ✅"
+    
+    # Existing rules...
+    if row['days_inactive'] > 90:
+        violations.append("GDPR Art. 32 (Data Minimization)")
+        # ADD THIS: Track Indian DPDPA compliance for dormant data access exposure
+        violations.append("DPDPA 2023 Sec. 8(5) (Data Erasure/Safeguards)")
+        
+    if row['failed_logins'] >= 5:
+        violations.append("ISO 27001 A.9 (Access Control)")
+        violations.append("SOC 2 CC6.1")
+        # ADD THIS: Track Indian DPDPA compliance for data breach prevention
+        violations.append("DPDPA 2023 Sec. 8(1) (Reasonable Security)")
 
+    # Join them back up to populate the master table column
+    df.at[idx, 'compliance_violations'] = ", ".join(violations) if violations else "Compliant"
 # 4. Data Layer Pipeline Resolution
 try:
     df = pd.read_csv("data/risk_assessments.csv")
@@ -193,32 +199,17 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
     st.session_state.last_user = selected_user
 
     with st.spinner(f"Generating AI Security Audit for {selected_user}..."):
-        prompt = f"""
-You are an elite Cybersecurity Incident Response Specialist and Regulatory Compliance Auditor.
-Generate an official Cybersecurity Incident Report.
+        # Update your Groq system context string inside the executive audit generator:
+    prompt = (
+        "You are an expert Cybersecurity Incident Responder and Global Compliance Auditor. "
+        "Analyze the provided user telemetry JSON data payload. You must explicitly evaluate "
+        "the account anomalies against SOC 2, ISO 27001, GDPR, and India's Digital Personal "
+        "Data Protection Act (DPDPA 2023). Output a professional Markdown executive threat summary, "
+        "a framework violation checklist detailing exact clauses broken (e.g., DPDPA Sec. 8 regarding "
+        "reasonable security safeguards to prevent data breaches), and immediate technical containment actions."
+    )
 
-User Details:
-- Username: {user_data['username']}
-- User ID: {user_data['user_id']}
-
-Security Metrics:
-- Risk Score: {user_data['risk_score']}/100
-- Risk Tier: {user_data['risk_tier']}
-- Failed Logins: {user_data['failed_logins']}
-- Days Inactive: {user_data['days_inactive']}
-- Privileged User: {user_data['is_privileged_user']}
-- Compliance Violations: {user_data['regulatory_impact']}
-
-Generate the report using proper Markdown.
-Include the following sections:
-# Executive Threat Summary
-# Regulatory Non-Compliance Analysis
-# Risk Assessment
-# Incident Response Playbook
-# Executive Recommendations
-"""
-
-        try:
+    try:
             client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
             completion = client.chat.completions.create(
