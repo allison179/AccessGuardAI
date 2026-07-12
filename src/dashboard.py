@@ -6,7 +6,7 @@ import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
-from pdf_generator import generate_pdf
+from src.pdf_generator import generate_pdf
 
 # Load workspace properties
 load_dotenv()
