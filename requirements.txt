@@ -2,6 +2,6 @@ streamlit
 pandas
 plotly
 groq
-reportlab
 markdown
 xhtml2pdf
+python-dotenv
