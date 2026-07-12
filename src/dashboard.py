@@ -230,5 +230,5 @@ if st.button("🚀 Run AI Security & Compliance Audit"):
 
                     st.success("✅ AI Audit Generated Successfully!")
 
-                except Exception as e:
+    except Exception as e:
                     st.exception(e)
