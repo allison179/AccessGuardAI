@@ -1,24 +1,24 @@
-# AccessGuard AI
-
 # 🛡️ AccessGuard AI — IAM Security & Compliance Analytics
 
 AccessGuard AI is an **Agentic IAM Security Analytics and Compliance Platform** built using Python, Streamlit, and Groq inference pipelines.
 
-The platform continuously tracks real-time behavioral identity logs to calculate risk profiles, catch active credential attacks (e.g., brute-force or hijacked sessions), and instantly maps anomalies to explicit global IT frameworks (**SOC 2, ISO 27001, and GDPR**) to catch compliance failures before they scale into data breaches.
+The platform continuously tracks real-time behavioral identity logs to calculate risk profiles, catch active credential attacks (e.g., brute-force or hijacked sessions), and instantly maps anomalies to explicit global IT frameworks (**SOC 2, ISO 27001, GDPR, and India's DPDPA 2023**) to catch compliance failures before they scale into data breaches or regulatory fines.
 
 🖥️ **Live Application:** [AccessGuard AI Dashboard](https://accessguardai-xewgkp5ksxfxet9uk5ms7u.streamlit.app/)
+
+---
 
 ## 🚀 Key Features
 
 * **📊 Risk Tier Distribution:** This pie chart breaks down your entire user base by severity (Low, Medium, High, Critical), instantly showing the overall proportion of compromised or non-compliant accounts that require immediate attention.
 * **📈 User Risk Scores vs. Failed Logins:** This scatter plot maps login failures against total calculated risk while factoring in account dormancy (bubble size), allowing analysts to visually isolate dangerous outliers—such as an active admin experiencing a brute-force attack—at a single glance.
-* **🔍 Identity & Compliance Risk Registry:** This section displays your searchable master database, dynamically highlighting high-risk and critical users using conditional color-coding. Simultaneously, it acts as a legal translator by automatically appending precise regulatory violations (**like GDPR Art. 32 or ISO 27001**) directly to each flagged user's row based on their specific security anomalies.
-* **🤖 Autonomous Compliance & Security Agent:** This section is the brain of the platform. When a security analyst selects a flagged user, the Groq inference engine acts as an automated incident responder and compliance auditor by delivering a structured report with three items:
+* **🔍 Identity & Compliance Risk Registry:** This section displays your searchable master database, dynamically highlighting high-risk and critical users using conditional color-coding. Simultaneously, it acts as a legal translator by automatically appending precise regulatory violations (**like GDPR Art. 32, ISO 27001, and DPDPA Sec. 8**) directly to each flagged user's row based on their specific security anomalies.
+* **🤖 Autonomous Compliance & Security Agent:** This section is the brain of the platform. When a security analyst selects a flagged user, the Groq inference engine acts as an automated incident responder and compliance auditor by delivering a structured report with three core items:
   * **Executive Threat Summary:** It analyzes raw behavioral anomalies (like impossible travel or high failed logins) to calculate the account's immediate "blast radius" and threat level.
-  * **Regulatory Non-Compliance Audit:** It identifies the exact clauses and global IT frameworks (such as ISO 27001 access control gaps, SOC 2 monitoring failures, or GDPR data security principles) being broken by that user's profile.
+  * **Regulatory Non-Compliance Audit:** It identifies the exact clauses and global IT frameworks (such as ISO 27001 access control gaps, SOC 2 monitoring failures, GDPR data security principles, and DPDPA compliance pillars) being broken by that user's profile.
   * **Playbook Mitigation Actions:** It generates an instant, step-by-step technical containment strategy—instructing the security team precisely how to isolate the account, revoke active OAuth tokens, and reset multi-factor authentication (MFA) to bring the user back into compliance.
-    **Real-time Identity Risk Monitoring & Regulatory Auditing**
-This dashboard continuously tracks **real-time behavioral logs** to calculate risk scores and catch active identity attacks (like brute-force or hijacked sessions). Concurrently, it instantly maps those security anomalies to explicit global IT frameworks (**SOC 2, ISO 27001, and GDPR**) to flag compliance failures before they result in data breaches or regulatory fines.
+
+---
 
 ## 🛠️ Current Tech Stack
 
