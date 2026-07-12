@@ -91,7 +91,8 @@ def generate_pdf(user_data, ai_markdown):
             pdf.multi_cell(0, 6, line.strip())
             pdf.ln(2)
             
-    return pdf.output()
+# Go to the end of the generate_pdf function and update the return statement:
+    return bytes(pdf.output())
 
 # 3. Compliance Rule Processor Engine
 def map_compliance_violations(row):
