@@ -248,9 +248,15 @@ if st.session_state.cached_markdown and st.session_state.cached_html:
 
     st.markdown("---")
 
+    pdf_bytes = generate_security_report(
+    user_data=user_data,
+    ai_report=ai_text
+    )
+    pdf = generate_pdf(user_data, ai_text)
+
     st.download_button(
-        label="📥 Download Executive Security Report",
-        data=st.session_state.cached_html,
-        file_name=f"AccessGuard_AI_Audit_{st.session_state.last_user}.html",
-        mime="text/html"
+    "📥 Download Executive PDF",
+    data=pdf,
+    file_name=f"AccessGuard_Report_{user_data['username']}.pdf",
+    mime="application/pdf"
     )
