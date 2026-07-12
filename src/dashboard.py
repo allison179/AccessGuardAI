@@ -9,19 +9,22 @@ import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
 
-# Load workspace properties
+# Load workspace environment configurations
 load_dotenv()
 
+# 1. Page & Layout Setup Configuration
 st.set_page_config(page_title="AccessGuard AI Dashboard", layout="wide")
 
 st.title("🛡️ AccessGuard AI — IAM Security & Compliance Analytics")
 st.subheader("Real-time Identity Risk Monitoring & Regulatory Auditing")
 st.markdown("---")
 
-# --- 📄 EMBEDDED PDF GENERATION ENGINE ---
+# 2. Native Dynamic PDF Generator (Sanitized against Emojis to prevent Segfaults)
 def generate_pdf(user_data, ai_markdown):
     """Converts AI markdown directly to styled HTML and builds a true PDF blob natively."""
-    html_content = markdown.markdown(ai_markdown)
+    # Strip emojis from the AI text before rendering to protect ReportLab/xhtml2pdf from crashing
+    clean_markdown = re.sub(r'[\U00010000-\U0010ffff]', '', ai_markdown)
+    html_content = markdown.markdown(clean_markdown)
     
     full_html = f"""
     <html>
@@ -34,7 +37,7 @@ def generate_pdf(user_data, ai_markdown):
             margin: 20mm;
         }}
         body {{
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
             color: #2D3748;
             line-height: 1.6;
             font-size: 11pt;
@@ -48,7 +51,7 @@ def generate_pdf(user_data, ai_markdown):
         .header h1 {{
             color: #1A365D;
             margin: 0;
-            font-size: 24pt;
+            font-size: 22pt;
             font-weight: 700;
         }}
         .header p {{
@@ -78,20 +81,20 @@ def generate_pdf(user_data, ai_markdown):
         }}
         h1 {{
             color: #1A365D;
-            font-size: 16pt;
-            margin-top: 30px;
-            margin-bottom: 12px;
+            font-size: 15pt;
+            margin-top: 25px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #E2E8F0;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
         }}
         h2 {{
             color: #2B6CB0;
-            font-size: 13pt;
+            font-size: 12pt;
             margin-top: 20px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }}
         p, li {{
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }}
         strong {{
             color: #1A365D;
@@ -100,7 +103,7 @@ def generate_pdf(user_data, ai_markdown):
     </head>
     <body>
         <div class="header">
-            <h1>🛡️ AccessGuard AI Enterprise Compliance Report</h1>
+            <h1>AccessGuard AI Enterprise Compliance Report</h1>
             <p>Official Executive Security & Infrastructure Assessment</p>
         </div>
         <div class="meta-box">
@@ -136,14 +139,13 @@ def generate_pdf(user_data, ai_markdown):
     except ImportError:
         pass
 
-    # Fallback to alternative system compiler if xhtml2pdf drops
     try:
         from weasyprint import HTML
         return HTML(string=full_html).write_pdf()
     except ImportError:
-        raise ImportError("Please ensure 'xhtml2pdf' or 'weasyprint' is added to requirements.txt.")
+        raise ImportError("Ensure xhtml2pdf or weasyprint is explicitly defined in requirements.txt.")
 
-# --- COMPLIANCE ENGINE METRICS ---
+# 3. Compliance Rule Processor Engine
 def map_compliance_violations(row):
     violations = []
     if row["brute_force_trigger"]:
@@ -156,7 +158,7 @@ def map_compliance_violations(row):
         violations.append("GDPR (Art. 32 - Data Minimization)")
     return ", ".join(violations) if violations else "Compliant ✅"
 
-# Data source verification pipeline
+# 4. Data Layer Pipeline Resolution
 try:
     df = pd.read_csv("data/risk_assessments.csv")
 except Exception:
@@ -175,7 +177,7 @@ except Exception:
 if "regulatory_impact" not in df.columns:
     df["regulatory_impact"] = df.apply(map_compliance_violations, axis=1)
 
-# --- METRIC GRID ---
+# 5. RENDERING VISUAL METRIC GRID
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric(label="Total Monitored Users", value=len(df))
@@ -191,43 +193,45 @@ with col4:
 
 st.markdown("---")
 
-# --- VISUAL CHARTS ---
+# 6. RENDERING ANALYTICS CHARTS GRID
 left_col, right_col = st.columns(2)
 color_map = {"Low": "#2ca02c", "Medium": "#ffbb78", "High": "#ff7f0e", "Critical": "#b62525"}
 
+# Fixed deprecated 'use_container_width' to use the new layout system properties
 with left_col:
     st.markdown("### 📊 Risk Tier Distribution")
     fig = px.pie(df, names="risk_tier", color="risk_tier", color_discrete_map=color_map, hole=0.4)
     fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with right_col:
     st.markdown("### 📈 User Risk Scores vs. Failed Logins")
     fig2 = px.scatter(df, x="failed_logins", y="risk_score", color="risk_tier", size="days_inactive",
                       hover_name="username", color_discrete_map=color_map)
     fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="white")
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
 st.markdown("---")
 
+# 7. RENDERING RISK DATA REGISTRY TABLE
 st.markdown("### 🔍 Identity & Compliance Risk Registry")
 styled_df = df.style.map(lambda v: "background-color: #bb1212; color: white;" if v == "Critical" else "", subset=["risk_tier"])
-st.dataframe(styled_df, use_container_width=True)
+st.dataframe(styled_df, width="stretch")
 
 st.markdown("---")
 
-# --- AI THREAT ENGINE ---
+# 8. THE CORE AI THREAT ENGINE BLOCK
 st.markdown("### 🤖 AccessGuard AI — Autonomous Compliance & Security Agent")
 
 user_options = df["username"].tolist()
 selected_user = st.selectbox("Select User for AI Audit:", user_options, key="audit_user_select")
 
-# Streamlit session memory initialization
+# Streamlit application state tracking configurations
 if "cached_markdown" not in st.session_state: st.session_state.cached_markdown = None
 if "cached_pdf" not in st.session_state: st.session_state.cached_pdf = None
 if "last_user" not in st.session_state: st.session_state.last_user = None
 
-# Wipe previous execution states if user target shifts
+# Flush previous results instantly if selector value modifications register
 if st.session_state.last_user != selected_user:
     st.session_state.cached_markdown = None
     st.session_state.cached_pdf = None
@@ -263,6 +267,7 @@ Include the following sections:
 """
 
         try:
+            # Build the explicit target runtime Groq client instance
             client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
             completion = client.chat.completions.create(
@@ -274,16 +279,17 @@ Include the following sections:
 
             ai_text = completion.choices[0].message.content
 
-            # Cache components cleanly inside state parameters
+            # Persist properties cleanly inside memory states
             st.session_state.cached_markdown = ai_text
             st.session_state.cached_pdf = generate_pdf(user_data, ai_text)
-
-            st.rerun() # Forces page refresh to load elements smoothly
+            
+            # Use dynamic rerun framework to render updates smoothly
+            st.rerun()
 
         except Exception as e:
             st.error(f"❌ AI Audit Failed: {e}")
 
-# --- RENDERING WORKSPACE ---
+# 9. OUTPUT & PDF DOWNLOAD PRESENTATION WORKSPACE
 if st.session_state.cached_markdown and st.session_state.cached_pdf:
     st.markdown("---")
     st.markdown("## 📄 AI Generated Security Audit")
