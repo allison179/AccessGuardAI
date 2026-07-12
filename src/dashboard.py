@@ -69,6 +69,7 @@ def generate_pdf(user_data, ai_markdown):
     pdf.set_xy(15, 74)
     
     # Process lines from AI Markdown
+    # Process lines from AI Markdown
     pdf.set_font("Helvetica", "", 10)
     lines = clean_text.split("\n")
     for line in lines:
@@ -82,13 +83,13 @@ def generate_pdf(user_data, ai_markdown):
             pdf.set_font("Helvetica", "", 10)
             pdf.set_text_color(45, 55, 72)
         elif line.strip().startswith("-") or line.strip().startswith("*"):
-            # Bullet point alignment layout logic
+            # FIX: Use explicit 170mm width so fpdf knows exactly how much space it has
             clean_bullet = line.strip()[1:].strip()
             pdf.set_x(20)
-            pdf.multi_cell(0, 6, f"* {clean_bullet}")
+            pdf.multi_cell(170, 6, f"* {clean_bullet}")
         elif line.strip():
-            # Standard structural text layout
-            pdf.multi_cell(0, 6, line.strip())
+            # FIX: Use explicit 186mm printable text field width instead of dynamic 0
+            pdf.multi_cell(186, 6, line.strip())
             pdf.ln(2)
             
 # Go to the end of the generate_pdf function and update the return statement:
