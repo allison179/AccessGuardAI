@@ -107,6 +107,14 @@ except Exception:
     })
 
 # 4. Compliance Rule Processor Engine (Moved AFTER data definition)
+# What is the most complicated code you have written
+#independently without AI or anyone else's assistance?
+# Independently implemented compliance rule-processing logic
+# to evaluate user activity against predefined security thresholds,
+# identify potential regulatory violations, and update the risk
+# assessment dataset with the corresponding compliance findings.
+
+
 for idx, row in df.iterrows():
     violations = []
     
